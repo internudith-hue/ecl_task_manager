@@ -2,14 +2,39 @@ import { getApp, getApps, initializeApp, type FirebaseOptions } from "firebase/a
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// Firebase web configuration is public project-identification metadata. Build
+// environments can override any value, while these defaults keep preview and
+// production deploys functional when no local .env file is present.
+const defaultFirebaseConfig: FirebaseOptions = {
+  apiKey: "AIzaSyAENvxh8HUwKgxUKBZksEU5-3mWu8FSnlw",
+  authDomain: "ecl-lab-520c6.firebaseapp.com",
+  projectId: "ecl-lab-520c6",
+  storageBucket: "ecl-lab-520c6.firebasestorage.app",
+  messagingSenderId: "599692846751",
+  appId: "1:599692846751:web:3ab0a721faba026668a4aa",
+  measurementId: "G-ZSTDL8S2QS",
+};
+
 const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY || defaultFirebaseConfig.apiKey,
+  authDomain:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
+    defaultFirebaseConfig.authDomain,
+  projectId:
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+    defaultFirebaseConfig.projectId,
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    defaultFirebaseConfig.storageBucket,
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ||
+    defaultFirebaseConfig.messagingSenderId,
+  appId:
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID || defaultFirebaseConfig.appId,
+  measurementId:
+    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ||
+    defaultFirebaseConfig.measurementId,
 };
 
 export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);

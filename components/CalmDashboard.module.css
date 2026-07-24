@@ -1,29 +1,33 @@
 .dashboard,
 .signInPage {
-  --ink: #26342e;
-  --ink-soft: #5d6d65;
-  --ink-faint: #75837c;
-  --surface: #fdfefc;
-  --surface-soft: #f4f8f4;
-  --border: #dce6df;
-  --border-strong: #cbd9d0;
-  --accent: #466f61;
-  --accent-deep: #34594d;
-  --accent-soft: #e6f0eb;
-  --success: #3f755f;
-  --success-soft: #edf7f1;
-  --danger: #97484d;
-  --danger-soft: #fff4f2;
-  --focus: #235647;
+  --blush: #f8b2b2;
+  --mauve: #af719d;
+  --plum: #8b639b;
+  --indigo: #403d88;
+  --ink: #2f2b45;
+  --ink-soft: #625a73;
+  --ink-faint: #786e84;
+  --surface: #fffdfd;
+  --surface-soft: #faf5f9;
+  --border: #eadde8;
+  --border-strong: #9f84a4;
+  --accent: var(--indigo);
+  --accent-deep: #302d6d;
+  --accent-soft: #efebf8;
+  --success: #654f7c;
+  --success-soft: #f3edf7;
+  --danger: #873d5c;
+  --danger-soft: #fff1f4;
+  --focus: var(--indigo);
   color: var(--ink);
 }
 
 .dashboard {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 4% 0%, rgba(130, 168, 150, 0.13), transparent 29rem),
-    radial-gradient(circle at 96% 35%, rgba(211, 191, 158, 0.12), transparent 27rem),
-    #f2f6f2;
+    radial-gradient(circle at 4% 0%, rgba(248, 178, 178, 0.2), transparent 29rem),
+    radial-gradient(circle at 96% 35%, rgba(139, 99, 155, 0.12), transparent 27rem),
+    #f8f5fa;
 }
 
 .srOnly {
@@ -42,8 +46,8 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid rgba(203, 217, 208, 0.82);
-  background: rgba(248, 251, 248, 0.9);
+  border-bottom: 1px solid rgba(139, 99, 155, 0.18);
+  background: rgba(255, 252, 254, 0.9);
   backdrop-filter: blur(16px);
 }
 
@@ -72,7 +76,7 @@
 .signInBrand > span {
   display: grid;
   place-items: center;
-  color: #f8fffb;
+  color: #fff;
   background: var(--accent);
 }
 
@@ -121,7 +125,7 @@
   overflow: hidden;
   place-items: center;
   color: var(--accent-deep);
-  border: 1px solid #cbded3;
+  border: 1px solid #d8c4db;
   border-radius: 50%;
   background: var(--accent-soft);
   font-size: 0.72rem;
@@ -171,7 +175,7 @@
   padding: 0 14px;
   gap: 7px;
   color: var(--ink-soft);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 13px;
   background: rgba(255, 255, 255, 0.74);
   font-size: 0.78rem;
@@ -242,7 +246,7 @@
   border: 1px solid var(--border);
   border-radius: 22px;
   background: var(--border);
-  box-shadow: 0 14px 38px rgba(54, 79, 66, 0.035);
+  box-shadow: 0 14px 38px rgba(64, 61, 136, 0.045);
 }
 
 .statCard {
@@ -276,6 +280,21 @@
   color: var(--accent);
   border-radius: 12px;
   background: var(--accent-soft);
+}
+
+.statCard:nth-child(1) .statIcon {
+  color: var(--indigo);
+  background: rgba(248, 178, 178, 0.32);
+}
+
+.statCard:nth-child(2) .statIcon {
+  color: var(--plum);
+  background: rgba(175, 113, 157, 0.14);
+}
+
+.statCard:nth-child(3) .statIcon {
+  color: var(--indigo);
+  background: rgba(139, 99, 155, 0.14);
 }
 
 .statValue,
@@ -315,8 +334,8 @@
 .panel {
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: rgba(253, 254, 252, 0.96);
-  box-shadow: 0 14px 38px rgba(54, 79, 66, 0.035);
+  background: rgba(255, 253, 253, 0.96);
+  box-shadow: 0 14px 38px rgba(64, 61, 136, 0.045);
 }
 
 .taskFormPanel,
@@ -379,7 +398,7 @@
   color: var(--ink);
   border: 1px solid var(--border-strong);
   outline: none;
-  background: #f9fbf9;
+  background: #fdf9fc;
   font-size: 1rem;
   transition:
     border-color 150ms ease,
@@ -400,7 +419,7 @@
 
 .formField input::placeholder,
 .inlineEditFields input::placeholder {
-  color: #95a19a;
+  color: #978b9d;
 }
 
 .inputWithSuffix,
@@ -474,13 +493,13 @@
 
 .settingsButton {
   color: var(--accent-deep);
-  border: 1px solid #c9dbd1;
+  border: 1px solid var(--border-strong);
   background: var(--accent-soft);
 }
 
 .settingsButton:hover:not(:disabled) {
-  border-color: #afcbbd;
-  background: #dcebe3;
+  border-color: var(--plum);
+  background: #e9dfef;
 }
 
 .formHint,
@@ -529,7 +548,7 @@
   padding: 0 13px;
   gap: 7px;
   color: var(--ink-soft);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 13px;
   background: var(--surface-soft);
   font-size: 0.78rem;
@@ -556,7 +575,7 @@
   align-items: center;
   padding: 16px 20px;
   gap: 12px;
-  border-bottom: 1px solid #e8eee9;
+  border-bottom: 1px solid #eee4ec;
   background: rgba(255, 255, 255, 0.64);
   transition: background 150ms ease;
 }
@@ -567,11 +586,11 @@
 
 .taskItem:hover,
 .taskItem:focus-within {
-  background: #fbfdfb;
+  background: #fffafd;
 }
 
 .taskItemDone {
-  background: #f7faf7;
+  background: #faf5fa;
 }
 
 .taskItemDone .taskBody h3 {
@@ -581,7 +600,7 @@
 }
 
 .taskItemEditing {
-  background: #f8fbf9;
+  background: #faf7fc;
 }
 
 .taskToggle {
@@ -593,6 +612,10 @@
   border: 0;
   border-radius: 14px;
   background: transparent;
+}
+
+.taskItemDone .taskToggle {
+  color: var(--plum);
 }
 
 .taskToggle:hover:not(:disabled) {
@@ -684,7 +707,7 @@
 
 .deleteButton:hover:not(:disabled) {
   color: var(--danger);
-  border-color: #ecd3d1;
+  border-color: #efcfd8;
   background: var(--danger-soft);
 }
 
@@ -788,8 +811,8 @@
   align-items: center;
   padding: 12px 14px;
   gap: 10px;
-  color: #7e3d42;
-  border: 1px solid #edd1cf;
+  color: #74344f;
+  border: 1px solid #efcfd8;
   border-radius: 14px;
   background: var(--danger-soft);
   font-size: 0.8rem;
@@ -812,7 +835,7 @@
 }
 
 .actionError button:hover {
-  background: rgba(151, 72, 77, 0.08);
+  background: rgba(175, 113, 157, 0.1);
 }
 
 .dataError {
@@ -822,7 +845,7 @@
 .retryButton {
   width: auto !important;
   padding: 0 13px;
-  border: 1px solid #e4c1bf !important;
+  border: 1px solid #e7bfd0 !important;
   background: rgba(255, 255, 255, 0.7) !important;
   font-weight: 680;
   white-space: nowrap;
@@ -835,9 +858,9 @@
   place-items: center;
   padding: 28px;
   background:
-    radial-gradient(circle at 12% 10%, rgba(119, 158, 141, 0.18), transparent 28rem),
-    radial-gradient(circle at 88% 90%, rgba(219, 197, 163, 0.15), transparent 30rem),
-    #f2f6f2;
+    radial-gradient(circle at 12% 10%, rgba(248, 178, 178, 0.26), transparent 28rem),
+    radial-gradient(circle at 88% 90%, rgba(139, 99, 155, 0.16), transparent 30rem),
+    #f8f5fa;
 }
 
 .signInPanel {
@@ -846,10 +869,10 @@
   max-width: calc(100vw - 56px);
   min-width: 0;
   padding: 48px;
-  border: 1px solid rgba(203, 217, 208, 0.9);
+  border: 1px solid rgba(139, 99, 155, 0.22);
   border-radius: 28px;
-  background: rgba(253, 254, 252, 0.96);
-  box-shadow: 0 24px 70px rgba(54, 79, 66, 0.09);
+  background: rgba(255, 253, 253, 0.96);
+  box-shadow: 0 24px 70px rgba(64, 61, 136, 0.11);
 }
 
 .signInBrand {
@@ -925,8 +948,8 @@
 }
 
 .googleSignInButton:hover:not(:disabled) {
-  border-color: #a9c2b5;
-  background: #fbfdfb;
+  border-color: #b9a1c2;
+  background: #fffafd;
 }
 
 .googleMark {
@@ -939,7 +962,7 @@
   padding: 11px 12px;
   margin: 12px 0 0;
   color: var(--danger);
-  border: 1px solid #edd1cf;
+  border: 1px solid #efcfd8;
   border-radius: 12px;
   background: var(--danger-soft);
   font-size: 0.78rem;
@@ -969,7 +992,7 @@
 .inlineEditFields input:focus {
   border-color: var(--accent);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(70, 111, 97, 0.14);
+  box-shadow: 0 0 0 3px rgba(64, 61, 136, 0.16);
 }
 
 .signOutButton:focus-visible,

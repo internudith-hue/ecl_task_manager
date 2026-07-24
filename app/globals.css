@@ -13,7 +13,7 @@
 
 html {
   min-width: 320px;
-  background: #f2f6f2;
+  background: #f8f5fa;
 }
 
 html,
@@ -23,8 +23,8 @@ body {
 }
 
 body {
-  color: #26342e;
-  background: #f2f6f2;
+  color: #2f2b45;
+  background: #f8f5fa;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -42,8 +42,8 @@ a {
 }
 
 ::selection {
-  color: #183329;
-  background: #cfe3d9;
+  color: #28245d;
+  background: #f8b2b2;
 }
 
 .auth-status,
@@ -54,9 +54,9 @@ a {
   justify-content: center;
   gap: 9px;
   padding: 24px;
-  color: #5d6d65;
+  color: #625a73;
   background:
-    radial-gradient(circle at 12% 8%, rgba(111, 151, 134, 0.13), transparent 30rem),
-    #f2f6f2;
+    radial-gradient(circle at 12% 8%, rgba(248, 178, 178, 0.22), transparent 30rem),
+    #f8f5fa;
   font-size: 0.9rem;
 }

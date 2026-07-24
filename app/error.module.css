@@ -4,18 +4,18 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(105, 86, 217, 0.12), transparent 32rem),
-    #f4f5f8;
+    radial-gradient(circle at 50% 0%, rgba(248, 178, 178, 0.24), transparent 32rem),
+    #f8f5fa;
 }
 
 .card {
   width: min(100%, 440px);
   padding: 34px;
   text-align: center;
-  border: 1px solid #e2e4e9;
+  border: 1px solid #eadde8;
   border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 24px 60px rgba(30, 35, 48, 0.1);
+  background: #fffdfd;
+  box-shadow: 0 24px 60px rgba(64, 61, 136, 0.1);
 }
 
 .icon {
@@ -24,9 +24,9 @@
   height: 48px;
   margin: 0 auto 18px;
   place-items: center;
-  color: #b54850;
+  color: #873d5c;
   border-radius: 14px;
-  background: #fff0f1;
+  background: rgba(248, 178, 178, 0.28);
 }
 
 .card h1 {
@@ -37,7 +37,7 @@
 
 .card p {
   margin: 10px 0 24px;
-  color: #687181;
+  color: #625a73;
   font-size: 0.85rem;
   line-height: 1.6;
 }
@@ -52,12 +52,12 @@
   color: #fff;
   border: 0;
   border-radius: 10px;
-  background: #5c49c2;
+  background: #403d88;
   cursor: pointer;
   font-weight: 680;
 }
 
 .card button:focus-visible {
-  outline: 3px solid rgba(105, 86, 217, 0.22);
+  outline: 3px solid #403d88;
   outline-offset: 3px;
 }

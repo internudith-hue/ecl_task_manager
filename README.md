@@ -15,9 +15,9 @@ sign out, clear site data, or the account session is revoked.
 3. Install dependencies with `npm install`.
 4. Run `npm run dev` and open `http://localhost:3000`.
 
-The supplied Firebase project values are already present in the local
-`.env.local` file. That file is intentionally ignored by Git; configure the same
-`NEXT_PUBLIC_FIREBASE_*` values in Vercel before deploying.
+The Firebase web configuration has deployment-safe defaults in `lib/firebase.ts`.
+A local `.env.local` remains ignored by Git, and `NEXT_PUBLIC_FIREBASE_*`
+variables can override the defaults for another Firebase environment.
 
 ## Firebase setup
 
@@ -46,3 +46,17 @@ npm run lint
 npm test
 npm run build
 ```
+
+## Netlify deployment
+
+The repository includes `netlify.toml` and `.nvmrc`, pinning the Node and npm
+versions used for the verified clean build. Netlify runs `npm run build`,
+publishes `.next`, and automatically applies its current Next.js adapter.
+
+Firebase web configuration is public project-identification metadata, not an
+authorization secret. Firestore access remains protected by `firestore.rules`
+and each authenticated user ID.
+
+After Netlify assigns the production domain, add that hostname under Firebase
+**Authentication → Settings → Authorized domains** so Google sign-in can open
+from the deployed site.
