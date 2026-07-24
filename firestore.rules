@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function validUserDocument() {
+      return request.resource.data.keys().hasOnly([
+          'hoursPerDay',
+          'nextTaskOrder'
+        ])
+        && request.resource.data.keys().hasAny([
+          'hoursPerDay',
+          'nextTaskOrder'
+        ])
+        && request.resource.data.get('hoursPerDay', 8) is number
+        && request.resource.data.get('hoursPerDay', 8) >= 0.25
+        && request.resource.data.get('hoursPerDay', 8) <= 24
+        && request.resource.data.get('nextTaskOrder', 1000) is int
+        && request.resource.data.get('nextTaskOrder', 1000) >= 1000
+        && request.resource.data.get('nextTaskOrder', 1000) <= 9007199254740991;
+    }
+
+    function validTask() {
+      return request.resource.data.keys().hasOnly([
+          'name',
+          'hours',
+          'status',
+          'order',
+          'createdAt',
+          'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 200
+        && request.resource.data.hours is number
+        && request.resource.data.hours > 0
+        && request.resource.data.hours <= 10000
+        && request.resource.data.hours % 0.25 == 0
+        && request.resource.data.status in ['pending', 'done']
+        && request.resource.data.order is number
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && validUserDocument();
+      allow delete: if isOwner(userId);
+
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && validTask();
+        allow update: if isOwner(userId)
+          && validTask()
+          && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
