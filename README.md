@@ -47,16 +47,27 @@ npm test
 npm run build
 ```
 
-## Netlify deployment
+## Vercel deployment
 
-The repository includes `netlify.toml` and `.nvmrc`, pinning the Node and npm
-versions used for the verified clean build. Netlify runs `npm run build`,
-publishes `.next`, and automatically applies its current Next.js adapter.
+Vercel deploys this Next.js application directly from `main` with its native
+Next.js integration. The stable production URL is:
+
+```text
+https://ecl-task-manager.vercel.app
+```
 
 Firebase web configuration is public project-identification metadata, not an
 authorization secret. Firestore access remains protected by `firestore.rules`
 and each authenticated user ID.
 
-After Netlify assigns the production domain, add that hostname under Firebase
-**Authentication → Settings → Authorized domains** so Google sign-in can open
-from the deployed site.
+Google sign-in requires that exact hostname under Firebase **Authentication →
+Settings → Authorized domains**. The same setting is versioned in
+`firebase.json`; from an authenticated Firebase CLI, apply it with:
+
+```sh
+npx firebase-tools deploy --only auth
+```
+
+Generated Vercel deployment URLs redirect to the stable production hostname
+before starting Google sign-in, avoiding a new Firebase domain entry for every
+preview build.

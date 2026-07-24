@@ -1,5 +1,17 @@
 {
   "firestore": {
     "rules": "firestore.rules"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Capacity",
+        "supportEmail": "internudith@gmail.com",
+        "authorizedRedirectUris": [
+          "https://ecl-task-manager.vercel.app",
+          "http://localhost:3000"
+        ]
+      }
+    }
   }
 }

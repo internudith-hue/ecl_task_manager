@@ -32,6 +32,26 @@ export interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 let localPersistencePromise: Promise<void> | null = null;
+const CANONICAL_VERCEL_HOSTNAME = "ecl-task-manager.vercel.app";
+
+function redirectVercelPreviewToProduction(): boolean {
+  if (typeof window === "undefined") return false;
+
+  const { hostname } = window.location;
+  if (
+    !hostname.endsWith(".vercel.app") ||
+    hostname === CANONICAL_VERCEL_HOSTNAME
+  ) {
+    return false;
+  }
+
+  const productionUrl = new URL(window.location.href);
+  productionUrl.protocol = "https:";
+  productionUrl.hostname = CANONICAL_VERCEL_HOSTNAME;
+  productionUrl.port = "";
+  window.location.replace(productionUrl.toString());
+  return true;
+}
 
 function ensureLocalPersistence(): Promise<void> {
   localPersistencePromise ??= setPersistence(auth, browserLocalPersistence);
@@ -46,6 +66,8 @@ function authError(error: unknown): Error {
   }
 
   const code = String(error.code);
+  const currentHostname =
+    typeof window === "undefined" ? "this hostname" : window.location.hostname;
   const messages: Record<string, string> = {
     "auth/account-exists-with-different-credential":
       "An account already exists for this email with a different sign-in method.",
@@ -60,7 +82,7 @@ function authError(error: unknown): Error {
     "auth/popup-closed-by-user":
       "The sign-in window was closed before sign-in completed.",
     "auth/unauthorized-domain":
-      "This domain is not authorized for Google sign-in.",
+      `Google sign-in is blocked for ${currentHostname}. Add this exact hostname under Firebase Authentication → Settings → Authorized domains.`,
     "auth/user-disabled": "This account has been disabled.",
   };
 
@@ -110,6 +132,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
+      if (redirectVercelPreviewToProduction()) return;
+
       await ensureLocalPersistence();
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
