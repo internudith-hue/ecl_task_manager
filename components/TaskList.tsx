@@ -11,7 +11,9 @@ import {
   Edit3,
   ListTodo,
   LoaderCircle,
+  Play,
   Save,
+  Square,
   Trash2,
   X,
 } from "lucide-react";
@@ -38,6 +40,10 @@ interface TaskListProps {
   onDelete: (task: Task) => Promise<void>;
   onMove: (taskId: string, direction: "up" | "down") => Promise<void>;
   onEdit: (task: Task, input: TaskInput) => Promise<void>;
+  onStartTimer: (taskId: string) => Promise<void>;
+  onStopTimer: (taskId: string) => Promise<void>;
+  elapsedMap: Map<string, number>;
+  activeTimerTaskId: string | null;
   busyTaskId?: string | null;
 }
 
@@ -51,6 +57,19 @@ const taskDate = new Intl.DateTimeFormat("en", {
   month: "short",
   day: "numeric",
 });
+
+/** Format elapsed seconds → "1h 23m 45s" (omits hours/minutes if zero) */
+function formatElapsed(totalSeconds: number): string {
+  if (totalSeconds <= 0) return "0s";
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  const parts: string[] = [];
+  if (h > 0) parts.push(`${h}h`);
+  if (m > 0) parts.push(`${m}m`);
+  parts.push(`${s}s`);
+  return parts.join(" ");
+}
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message.trim()) {
@@ -75,6 +94,10 @@ export function TaskList({
   onDelete,
   onMove,
   onEdit,
+  onStartTimer,
+  onStopTimer,
+  elapsedMap,
+  activeTimerTaskId,
   busyTaskId = null,
 }: TaskListProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -296,7 +319,9 @@ export function TaskList({
               <li
                 className={`${styles.taskItem} ${
                   isDone ? styles.taskItemDone : ""
-                } ${isEditing ? styles.taskItemEditing : ""}`}
+                } ${isEditing ? styles.taskItemEditing : ""} ${
+                  activeTimerTaskId === task.id ? styles.taskItemRunning : ""
+                }`}
                 key={task.id}
                 aria-busy={isBusy}
               >
@@ -419,6 +444,26 @@ export function TaskList({
                               : " workdays"}
                           </span>
                         ) : null}
+                        {/* Timer elapsed display */}
+                        {(() => {
+                          const elapsed = elapsedMap.get(task.id) ?? task.trackedSeconds;
+                          const isRunning = activeTimerTaskId === task.id;
+                          if (elapsed <= 0 && !isRunning) return null;
+                          return (
+                            <span
+                              className={`${styles.timerDisplay} ${
+                                elapsed <= 0 ? styles.timerDisplayZero : ""
+                              }`}
+                            >
+                              {isRunning ? (
+                                <span className={styles.timerPulse} aria-hidden="true" />
+                              ) : (
+                                <Clock3 size={12} aria-hidden="true" />
+                              )}
+                              {formatElapsed(elapsed)}
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
 
@@ -434,6 +479,40 @@ export function TaskList({
                         </span>
                       ) : (
                         <>
+                          {/* Timer button */}
+                          {!isDone ? (
+                            <button
+                              className={`${styles.timerButton} ${
+                                activeTimerTaskId === task.id
+                                  ? styles.timerButtonActive
+                                  : ""
+                              }`}
+                              type="button"
+                              onClick={() =>
+                                activeTimerTaskId === task.id
+                                  ? void onStopTimer(task.id)
+                                  : void onStartTimer(task.id)
+                              }
+                              disabled={hasBusyTask}
+                              aria-label={
+                                activeTimerTaskId === task.id
+                                  ? `Stop timer for ${task.name}`
+                                  : `Start timer for ${task.name}`
+                              }
+                              title={
+                                activeTimerTaskId === task.id
+                                  ? "Stop timer"
+                                  : "Start timer"
+                              }
+                            >
+                              {activeTimerTaskId === task.id ? (
+                                <Square size={15} aria-hidden="true" />
+                              ) : (
+                                <Play size={15} aria-hidden="true" />
+                              )}
+                            </button>
+                          ) : null}
+
                           {!isDone ? (
                             <div
                               className={styles.moveControls}

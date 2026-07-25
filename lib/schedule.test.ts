@@ -33,6 +33,8 @@ function task(
     order,
     createdAt: null,
     updatedAt: null,
+    trackedSeconds: 0,
+    timerStartedAt: null,
   };
 }
 

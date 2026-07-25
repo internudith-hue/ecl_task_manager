@@ -30,7 +30,9 @@ service cloud.firestore {
           'status',
           'order',
           'createdAt',
-          'updatedAt'
+          'updatedAt',
+          'trackedSeconds',
+          'timerStartedAt'
         ])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
@@ -42,7 +44,9 @@ service cloud.firestore {
         && request.resource.data.status in ['pending', 'done']
         && request.resource.data.order is number
         && request.resource.data.createdAt is timestamp
-        && request.resource.data.updatedAt is timestamp;
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.get('trackedSeconds', 0) is number
+        && request.resource.data.get('trackedSeconds', 0) >= 0;
     }
 
     match /users/{userId} {

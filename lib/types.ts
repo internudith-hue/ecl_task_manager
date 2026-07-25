@@ -8,6 +8,8 @@ export interface Task {
   order: number;
   createdAt: Date | null;
   updatedAt: Date | null;
+  trackedSeconds: number;       // total accumulated tracked seconds
+  timerStartedAt: Date | null;  // null = stopped, Date = running since
 }
 
 export interface ScheduledTask extends Task {

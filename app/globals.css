@@ -1,10 +1,49 @@
+/* ─── Clay Design System — Global Tokens ─── */
 :root {
   color-scheme: light;
   font-family:
     Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+    Roboto, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  /* Clay color tokens */
+  --clay-primary:            #0a0a0a;
+  --clay-primary-active:     #1f1f1f;
+  --clay-primary-disabled:   #e5e5e5;
+  --clay-ink:                #0a0a0a;
+  --clay-body:               #3a3a3a;
+  --clay-body-strong:        #1a1a1a;
+  --clay-muted:              #6a6a6a;
+  --clay-muted-soft:         #9a9a9a;
+  --clay-hairline:           #e5e5e5;
+  --clay-hairline-soft:      #f0f0f0;
+  --clay-canvas:             #fffaf0;
+  --clay-surface-soft:       #faf5e8;
+  --clay-surface-card:       #f5f0e0;
+  --clay-surface-strong:     #ebe6d6;
+  --clay-surface-dark:       #0a1a1a;
+  --clay-on-primary:         #ffffff;
+  --clay-on-dark:            #ffffff;
+  --clay-on-dark-soft:       #a0a0a0;
+  --clay-brand-pink:         #ff4d8b;
+  --clay-brand-teal:         #1a3a3a;
+  --clay-brand-lavender:     #b8a4ed;
+  --clay-brand-peach:        #ffb084;
+  --clay-brand-ochre:        #e8b94a;
+  --clay-brand-mint:         #a4d4c5;
+  --clay-brand-coral:        #ff6b5a;
+  --clay-success:            #22c55e;
+  --clay-warning:            #f59e0b;
+  --clay-error:              #ef4444;
+
+  /* Clay border radius tokens */
+  --clay-radius-xs:   6px;
+  --clay-radius-sm:   8px;
+  --clay-radius-md:   12px;
+  --clay-radius-lg:   16px;
+  --clay-radius-xl:   24px;
+  --clay-radius-pill: 9999px;
 }
 
 * {
@@ -13,7 +52,7 @@
 
 html {
   min-width: 320px;
-  background: #f8f5fa;
+  background: var(--clay-canvas);
 }
 
 html,
@@ -23,8 +62,8 @@ body {
 }
 
 body {
-  color: #2f2b45;
-  background: #f8f5fa;
+  color: var(--clay-ink);
+  background: var(--clay-canvas);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -42,10 +81,11 @@ a {
 }
 
 ::selection {
-  color: #28245d;
-  background: #f8b2b2;
+  color: var(--clay-on-primary);
+  background: var(--clay-brand-teal);
 }
 
+/* Loading / auth gate screens */
 .auth-status,
 .route-status {
   display: flex;
@@ -54,9 +94,7 @@ a {
   justify-content: center;
   gap: 9px;
   padding: 24px;
-  color: #625a73;
-  background:
-    radial-gradient(circle at 12% 8%, rgba(248, 178, 178, 0.22), transparent 30rem),
-    #f8f5fa;
+  color: var(--clay-muted);
+  background: var(--clay-canvas);
   font-size: 0.9rem;
 }

@@ -4,12 +4,15 @@ import {
   AlertTriangle,
   ArrowRight,
   CalendarClock,
+  CalendarDays,
   Check,
+  List,
   LoaderCircle,
   LockKeyhole,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { CalendarView } from "@/components/CalendarView";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { HeadlineStats } from "@/components/HeadlineStats";
 import { SettingsCard } from "@/components/SettingsCard";
@@ -18,6 +21,7 @@ import { TaskList } from "@/components/TaskList";
 import styles from "@/components/CalmDashboard.module.css";
 import { useAuth } from "@/hooks/useAuth";
 import { useSettings } from "@/hooks/useSettings";
+import { useTaskTimer } from "@/hooks/useTaskTimer";
 import { useTasks } from "@/hooks/useTasks";
 import { buildSchedule } from "@/lib/schedule";
 import {
@@ -66,8 +70,11 @@ function useToday() {
   return today;
 }
 
+type ViewMode = "list" | "calendar";
+
 function DashboardContent() {
   const { user, signOut } = useAuth();
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const today = useToday();
   const {
     tasks,
@@ -80,6 +87,9 @@ function DashboardContent() {
     error: settingsError,
     updateHoursPerDay,
   } = useSettings(user?.uid);
+
+  const { activeTaskId: activeTimerTaskId, elapsedMap, handleStart: handleStartTimer, handleStop: handleStopTimer } =
+    useTaskTimer(user?.uid, tasks);
 
   const schedule = useMemo(
     () =>
@@ -129,10 +139,36 @@ function DashboardContent() {
                 ? pendingCount === 1
                   ? `${nextTask.name} is next, planned through ${friendlyDate.format(queueEnd)}.`
                   : `${nextTask.name} is next. Your ${pendingCount} tasks are planned through ${friendlyDate.format(queueEnd)}.`
-                : "Nothing is waiting. Add a task whenever you’re ready."}
+                : "Nothing is waiting. Add a task whenever you're ready."}
             </p>
           </div>
         </section>
+
+        {/* View toggle — List / Calendar */}
+        <div className={styles.viewToggle} role="tablist" aria-label="View mode">
+          <button
+            id="tab-list"
+            role="tab"
+            aria-selected={viewMode === "list"}
+            aria-controls="panel-list"
+            className={`${styles.viewTab} ${viewMode === "list" ? styles.viewTabActive : ""}`}
+            onClick={() => setViewMode("list")}
+          >
+            <List size={14} aria-hidden="true" />
+            List
+          </button>
+          <button
+            id="tab-calendar"
+            role="tab"
+            aria-selected={viewMode === "calendar"}
+            aria-controls="panel-calendar"
+            className={`${styles.viewTab} ${viewMode === "calendar" ? styles.viewTabActive : ""}`}
+            onClick={() => setViewMode("calendar")}
+          >
+            <CalendarDays size={14} aria-hidden="true" />
+            Calendar
+          </button>
+        </div>
 
         {tasksError ? (
           <div
@@ -177,29 +213,51 @@ function DashboardContent() {
               hoursPerDay={hoursPerDay}
             />
 
-            <div className={styles.controlsGrid} aria-label="Queue controls">
-              <TaskForm
-                onSubmit={(input) => addTask(user.uid, input).then(() => {})}
-              />
-              <SettingsCard
-                hoursPerDay={hoursPerDay}
-                loading={settingsLoading}
-                onSave={updateHoursPerDay}
+            {/* LIST VIEW */}
+            <div
+              id="panel-list"
+              role="tabpanel"
+              aria-labelledby="tab-list"
+              hidden={viewMode !== "list"}
+            >
+              <div className={styles.controlsGrid} aria-label="Queue controls">
+                <TaskForm
+                  onSubmit={(input) => addTask(user.uid, input).then(() => {})}
+                />
+                <SettingsCard
+                  hoursPerDay={hoursPerDay}
+                  loading={settingsLoading}
+                  onSave={updateHoursPerDay}
+                />
+              </div>
+
+              <TaskList
+                tasks={tasks}
+                schedule={schedule}
+                onToggle={(task) =>
+                  toggleTaskStatus(user.uid, task.id, task.status)
+                }
+                onDelete={(task) => deleteTask(user.uid, task.id)}
+                onMove={handleMove}
+                onEdit={(_task: Task, input) =>
+                  updateTask(user.uid, _task.id, input)
+                }
+                onStartTimer={handleStartTimer}
+                onStopTimer={handleStopTimer}
+                elapsedMap={elapsedMap}
+                activeTimerTaskId={activeTimerTaskId}
               />
             </div>
 
-            <TaskList
-              tasks={tasks}
-              schedule={schedule}
-              onToggle={(task) =>
-                toggleTaskStatus(user.uid, task.id, task.status)
-              }
-              onDelete={(task) => deleteTask(user.uid, task.id)}
-              onMove={handleMove}
-              onEdit={(_task: Task, input) =>
-                updateTask(user.uid, _task.id, input)
-              }
-            />
+            {/* CALENDAR VIEW */}
+            <div
+              id="panel-calendar"
+              role="tabpanel"
+              aria-labelledby="tab-calendar"
+              hidden={viewMode !== "calendar"}
+            >
+              <CalendarView schedule={schedule} today={today} />
+            </div>
           </>
         )}
       </main>

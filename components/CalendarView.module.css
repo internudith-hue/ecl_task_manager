@@ -1,0 +1,277 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   CalendarView — Clay Design System
+   3-month Google Calendar–style month view
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Outer wrapper ──────────────────────────────────────────────────── */
+.calendarView {
+  margin-top: 24px;
+}
+
+/* ── 3-month row ────────────────────────────────────────────────────── */
+.monthsRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Single month panel ─────────────────────────────────────────────── */
+.monthGrid {
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  background: #fffaf0;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(10, 10, 10, 0.04);
+}
+
+/* ── Month title heading ────────────────────────────────────────────── */
+.monthTitle {
+  margin: 0;
+  padding: 16px 16px 12px;
+  color: #0a0a0a;
+  font-family: Inter, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* ── Day-of-week header row ─────────────────────────────────────────── */
+.dayHeaders {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  padding: 8px 4px 4px;
+  gap: 2px;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9a9a9a;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ── 7×6 cell grid ──────────────────────────────────────────────────── */
+.cellGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  padding: 0 4px 8px;
+}
+
+/* ── Individual day cell ────────────────────────────────────────────── */
+.dayCell {
+  min-height: 72px;
+  padding: 4px 3px 3px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  transition: background 120ms ease;
+}
+
+.dayCell:hover {
+  background: #faf5e8;
+}
+
+/* Days outside current month — dimmed */
+.dayCellOutside {
+  opacity: 0.32;
+}
+
+/* Weekend columns — very subtle tint */
+.dayCellWeekend {
+  background: rgba(10, 10, 10, 0.018);
+}
+.dayCellWeekend:hover {
+  background: #faf5e8;
+}
+
+/* ── Day number ─────────────────────────────────────────────────────── */
+.dayNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #3a3a3a;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Today — filled near-black circle */
+.dayNumberToday {
+  color: #fff;
+  background: #0a0a0a;
+  font-weight: 700;
+}
+
+/* ── Chip container ─────────────────────────────────────────────────── */
+.chipList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  width: 100%;
+}
+
+/* ── Task chip ──────────────────────────────────────────────────────── */
+.taskChip {
+  width: 100%;
+  min-height: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: default;
+  position: relative;
+}
+
+/* First day of a task span — show label */
+.chipStart {
+  border-radius: 3px 3px 3px 3px;
+}
+
+/* Continuation days — no left radius, no label */
+.chipContinue {
+  border-radius: 0;
+  opacity: 0.85;
+}
+
+/* Last day of span */
+.chipEnd {
+  border-radius: 3px;
+}
+
+.chipLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  line-height: 16px;
+}
+
+/* ── Legend ─────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  background: #fffaf0;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendName {
+  color: #3a3a3a;
+  font-size: 0.78rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────── */
+.emptyCalendar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  margin-top: 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  background: #fffaf0;
+  color: #6a6a6a;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Tablet: 2 months */
+@media (max-width: 1024px) {
+  .monthsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Hide previous month on tablet */
+  .monthsRow > :first-child {
+    display: none;
+  }
+}
+
+/* Mobile: 1 month only (current) */
+@media (max-width: 680px) {
+  .monthsRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Show only current month (middle child) */
+  .monthsRow > :first-child,
+  .monthsRow > :last-child {
+    display: none;
+  }
+
+  .dayCell {
+    min-height: 52px;
+  }
+
+  .monthTitle {
+    font-size: 0.9rem;
+    padding: 12px 12px 10px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 420px) {
+  .dayCell {
+    min-height: 44px;
+    padding: 3px 2px 2px;
+  }
+
+  .dayNumber {
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+  }
+
+  .taskChip {
+    min-height: 13px;
+    font-size: 0.55rem;
+  }
+}

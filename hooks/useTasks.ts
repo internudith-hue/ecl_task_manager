@@ -60,6 +60,8 @@ function mapTask(
     order: asFiniteNumber(data.order),
     createdAt: asDate(data.createdAt),
     updatedAt: asDate(data.updatedAt),
+    trackedSeconds: Math.max(0, asFiniteNumber(data.trackedSeconds, 0)),
+    timerStartedAt: asDate(data.timerStartedAt),
   };
 }
 

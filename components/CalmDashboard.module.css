@@ -1,35 +1,67 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Clay Design System — Dashboard Component Styles
+   Palette: warm cream canvas · near-black CTAs · 6-color feature cards
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Scoped design tokens ────────────────────────────────────────────── */
 .dashboard,
 .signInPage {
-  --blush: #f8b2b2;
-  --mauve: #af719d;
-  --plum: #8b639b;
-  --indigo: #403d88;
-  --ink: #2f2b45;
-  --ink-soft: #625a73;
-  --ink-faint: #786e84;
-  --surface: #fffdfd;
-  --surface-soft: #faf5f9;
-  --border: #eadde8;
-  --border-strong: #9f84a4;
-  --accent: var(--indigo);
-  --accent-deep: #302d6d;
-  --accent-soft: #efebf8;
-  --success: #654f7c;
-  --success-soft: #f3edf7;
-  --danger: #873d5c;
-  --danger-soft: #fff1f4;
-  --focus: var(--indigo);
+  /* Surface */
+  --canvas:           #fffaf0;
+  --surface-soft:     #faf5e8;
+  --surface-card:     #f5f0e0;
+  --surface-strong:   #ebe6d6;
+
+  /* Text */
+  --ink:              #0a0a0a;
+  --ink-strong:       #1a1a1a;
+  --ink-soft:         #3a3a3a;
+  --ink-faint:        #6a6a6a;
+  --ink-ghost:        #9a9a9a;
+
+  /* Borders */
+  --hairline:         #e5e5e5;
+  --hairline-soft:    #f0f0f0;
+
+  /* Primary action (near-black) */
+  --primary:          #0a0a0a;
+  --primary-active:   #1f1f1f;
+  --primary-disabled: #e5e5e5;
+  --on-primary:       #ffffff;
+
+  /* Brand palette */
+  --brand-pink:       #ff4d8b;
+  --brand-teal:       #1a3a3a;
+  --brand-lavender:   #b8a4ed;
+  --brand-peach:      #ffb084;
+  --brand-ochre:      #e8b94a;
+  --brand-mint:       #a4d4c5;
+  --brand-coral:      #ff6b5a;
+
+  /* Semantic */
+  --success:          #22c55e;
+  --success-soft:     #dcfce7;
+  --danger:           #ef4444;
+  --danger-soft:      #fee2e2;
+  --danger-text:      #b91c1c;
+  --warning:          #f59e0b;
+
+  /* Focus ring */
+  --focus:            #0a0a0a;
+
   color: var(--ink);
 }
 
+/* ── Dashboard shell ─────────────────────────────────────────────────── */
 .dashboard {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 4% 0%, rgba(248, 178, 178, 0.2), transparent 29rem),
-    radial-gradient(circle at 96% 35%, rgba(139, 99, 155, 0.12), transparent 27rem),
-    #f8f5fa;
+    radial-gradient(circle at 5% 0%, rgba(255, 176, 132, 0.18), transparent 32rem),
+    radial-gradient(circle at 94% 40%, rgba(184, 164, 237, 0.14), transparent 28rem),
+    var(--canvas);
 }
 
+/* ── Utility ─────────────────────────────────────────────────────────── */
 .srOnly {
   position: absolute;
   width: 1px;
@@ -42,19 +74,20 @@
   border: 0;
 }
 
+/* ── Header / Nav ────────────────────────────────────────────────────── */
 .dashboardHeader {
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid rgba(139, 99, 155, 0.18);
-  background: rgba(255, 252, 254, 0.9);
+  border-bottom: 1px solid var(--hairline);
+  background: rgba(255, 250, 240, 0.92);
   backdrop-filter: blur(16px);
 }
 
 .headerInner {
   display: flex;
   width: min(100% - 48px, 1050px);
-  min-height: 70px;
+  min-height: 64px;
   align-items: center;
   justify-content: space-between;
   margin: 0 auto;
@@ -76,14 +109,14 @@
 .signInBrand > span {
   display: grid;
   place-items: center;
-  color: #fff;
-  background: var(--accent);
+  color: var(--on-primary);
+  background: var(--primary);
 }
 
 .brandMark {
   width: 38px;
   height: 38px;
-  border-radius: 13px;
+  border-radius: 12px;
 }
 
 .brandCopy,
@@ -94,8 +127,8 @@
 .brandCopy strong {
   color: var(--ink);
   font-size: 0.95rem;
-  font-weight: 720;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.04em;
 }
 
 .brandCopy span,
@@ -116,20 +149,21 @@
   gap: 9px;
 }
 
+/* Avatar */
 .avatar {
   position: relative;
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   flex: 0 0 auto;
   overflow: hidden;
   place-items: center;
-  color: var(--accent-deep);
-  border: 1px solid #d8c4db;
+  color: var(--ink);
+  border: 1.5px solid var(--hairline);
   border-radius: 50%;
-  background: var(--accent-soft);
+  background: var(--surface-card);
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .avatar img {
@@ -148,11 +182,12 @@
   overflow: hidden;
   color: var(--ink);
   font-size: 0.8rem;
-  font-weight: 680;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* ── Button resets ───────────────────────────────────────────────────── */
 .signOutButton,
 .primaryButton,
 .settingsButton,
@@ -167,41 +202,49 @@
   cursor: pointer;
 }
 
+/* ── Sign-out button (secondary style) ───────────────────────────────── */
 .signOutButton {
   display: inline-flex;
-  min-height: 42px;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
   padding: 0 14px;
   gap: 7px;
   color: var(--ink-soft);
-  border: 1px solid var(--border-strong);
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--canvas);
   font-size: 0.78rem;
-  font-weight: 680;
+  font-weight: 600;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
 }
 
 .signOutButton:hover:not(:disabled) {
   color: var(--ink);
-  border-color: var(--border-strong);
-  background: #fff;
+  border-color: var(--ink-ghost);
+  background: var(--surface-card);
 }
 
+/* ── Header error ────────────────────────────────────────────────────── */
 .headerError {
   width: min(100% - 48px, 1050px);
   margin: -8px auto 12px;
-  color: var(--danger);
+  color: var(--danger-text);
   font-size: 0.78rem;
   text-align: right;
 }
 
+/* ── Main content area ───────────────────────────────────────────────── */
 .main {
   width: min(100% - 48px, 1050px);
   margin: 0 auto;
   padding: 42px 0 72px;
 }
 
+/* ── Page intro / hero band ──────────────────────────────────────────── */
 .pageIntro {
   max-width: 780px;
   margin-bottom: 24px;
@@ -209,10 +252,10 @@
 
 .eyebrow {
   display: block;
-  color: var(--accent);
+  color: var(--ink-faint);
   font-size: 0.76rem;
-  font-weight: 720;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -221,7 +264,7 @@
   margin: 9px 0 10px;
   color: var(--ink);
   font-size: clamp(2rem, 4.5vw, 2.75rem);
-  font-weight: 680;
+  font-weight: 500;
   letter-spacing: -0.05em;
   line-height: 1.07;
 }
@@ -234,6 +277,7 @@
   line-height: 1.65;
 }
 
+/* ── Headline stats grid ─────────────────────────────────────────────── */
 .statsSection {
   width: 100%;
 }
@@ -243,10 +287,10 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   overflow: hidden;
   gap: 1px;
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  background: var(--border);
-  box-shadow: 0 14px 38px rgba(64, 61, 136, 0.045);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  background: var(--hairline);
+  box-shadow: 0 1px 6px rgba(10, 10, 10, 0.04);
 }
 
 .statCard {
@@ -255,7 +299,7 @@
   min-height: 128px;
   flex-direction: column;
   padding: 21px 22px;
-  background: var(--surface);
+  background: var(--canvas);
 }
 
 .statCardTop {
@@ -266,35 +310,37 @@
 }
 
 .statLabel {
-  color: var(--ink-soft);
+  color: var(--ink-faint);
   font-size: 0.8rem;
-  font-weight: 680;
+  font-weight: 600;
 }
 
+/* Stat icons — use Clay's 3-card brand palette */
 .statIcon {
   display: grid;
   width: 36px;
   height: 36px;
   flex: 0 0 auto;
   place-items: center;
-  color: var(--accent);
-  border-radius: 12px;
-  background: var(--accent-soft);
+  border-radius: 10px;
 }
 
+/* Card 1: pink accent */
 .statCard:nth-child(1) .statIcon {
-  color: var(--indigo);
-  background: rgba(248, 178, 178, 0.32);
+  color: var(--brand-pink);
+  background: rgba(255, 77, 139, 0.12);
 }
 
+/* Card 2: teal accent */
 .statCard:nth-child(2) .statIcon {
-  color: var(--plum);
-  background: rgba(175, 113, 157, 0.14);
+  color: var(--brand-teal);
+  background: rgba(26, 58, 58, 0.1);
 }
 
+/* Card 3: lavender accent */
 .statCard:nth-child(3) .statIcon {
-  color: var(--indigo);
-  background: rgba(139, 99, 155, 0.14);
+  color: #7c5ed0;
+  background: rgba(184, 164, 237, 0.22);
 }
 
 .statValue,
@@ -302,7 +348,7 @@
   margin-top: 13px;
   color: var(--ink);
   font-size: 1.75rem;
-  font-weight: 710;
+  font-weight: 600;
   letter-spacing: -0.045em;
   line-height: 1;
 }
@@ -320,6 +366,54 @@
   line-height: 1.4;
 }
 
+/* ── View toggle (List / Calendar tabs) ──────────────────────────────── */
+.viewToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 20px;
+  padding: 4px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--clay-radius-pill, 9999px);
+  background: var(--surface-soft);
+  width: fit-content;
+}
+
+.viewTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background 120ms ease;
+}
+
+.viewTab:hover:not(.viewTabActive) {
+  color: var(--ink);
+  background: var(--surface-card);
+}
+
+.viewTabActive {
+  color: var(--ink);
+  background: var(--canvas);
+  box-shadow: 0 1px 3px rgba(10, 10, 10, 0.08);
+}
+
+.viewTabActive:hover {
+  background: var(--canvas);
+}
+
+/* ── Controls grid (form + settings side-by-side) ────────────────────── */
 .controlsGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.72fr);
@@ -328,14 +422,15 @@
   margin-top: 16px;
 }
 
+/* ── Panel base ──────────────────────────────────────────────────────── */
 .taskFormPanel,
 .settingsCard,
 .taskListPanel,
 .panel {
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  background: rgba(255, 253, 253, 0.96);
-  box-shadow: 0 14px 38px rgba(64, 61, 136, 0.045);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--canvas);
+  box-shadow: 0 1px 4px rgba(10, 10, 10, 0.04);
 }
 
 .taskFormPanel,
@@ -343,6 +438,7 @@
   padding: 24px;
 }
 
+/* ── Section headers inside panels ───────────────────────────────────── */
 .sectionHeader,
 .settingsHeader {
   display: flex;
@@ -355,8 +451,8 @@
 .sectionTitle {
   margin: 0;
   color: var(--ink);
-  font-size: 1.12rem;
-  font-weight: 690;
+  font-size: 1.05rem;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.25;
 }
@@ -369,6 +465,7 @@
   line-height: 1.55;
 }
 
+/* ── Task add form ───────────────────────────────────────────────────── */
 .taskForm {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 136px auto;
@@ -385,20 +482,21 @@
 
 .formField label,
 .settingsField label {
-  color: var(--ink-soft);
+  color: var(--ink-faint);
   font-size: 0.78rem;
-  font-weight: 670;
+  font-weight: 600;
 }
 
+/* ── Input base ──────────────────────────────────────────────────────── */
 .formField > input,
 .inputWithSuffix input,
 .settingsInput,
 .inlineEditFields input {
   width: 100%;
   color: var(--ink);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--hairline);
   outline: none;
-  background: #fdf9fc;
+  background: var(--canvas);
   font-size: 1rem;
   transition:
     border-color 150ms ease,
@@ -409,8 +507,8 @@
 .formField > input,
 .inputWithSuffix input,
 .settingsInput {
-  height: 48px;
-  border-radius: 13px;
+  height: 44px;
+  border-radius: 12px;
 }
 
 .formField > input {
@@ -419,9 +517,10 @@
 
 .formField input::placeholder,
 .inlineEditFields input::placeholder {
-  color: #978b9d;
+  color: var(--ink-ghost);
 }
 
+/* Input with icon + suffix */
 .inputWithSuffix,
 .settingsControl,
 .inlineHoursField {
@@ -452,17 +551,18 @@
   pointer-events: none;
 }
 
+/* ── Primary button (near-black) ─────────────────────────────────────── */
 .primaryButton,
 .settingsButton {
   display: inline-flex;
-  min-height: 48px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   padding: 0 16px;
   gap: 8px;
-  border-radius: 13px;
+  border-radius: 12px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
   transition:
     color 150ms ease,
     border-color 150ms ease,
@@ -470,16 +570,17 @@
 }
 
 .primaryButton {
-  color: #fff;
-  border: 1px solid var(--accent);
-  background: var(--accent);
+  color: var(--on-primary);
+  border: 1px solid var(--primary);
+  background: var(--primary);
 }
 
 .primaryButton:hover:not(:disabled) {
-  border-color: var(--accent-deep);
-  background: var(--accent-deep);
+  border-color: var(--primary-active);
+  background: var(--primary-active);
 }
 
+/* ── Settings form ───────────────────────────────────────────────────── */
 .settingsForm {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -491,17 +592,19 @@
   padding: 0 78px 0 13px;
 }
 
+/* Secondary / settings button (cream style) */
 .settingsButton {
-  color: var(--accent-deep);
-  border: 1px solid var(--border-strong);
-  background: var(--accent-soft);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  background: var(--surface-card);
 }
 
 .settingsButton:hover:not(:disabled) {
-  border-color: var(--plum);
-  background: #e9dfef;
+  border-color: var(--ink-ghost);
+  background: var(--surface-strong);
 }
 
+/* ── Form feedback ───────────────────────────────────────────────────── */
 .formHint,
 .formError,
 .formSuccess,
@@ -518,14 +621,15 @@
 }
 
 .formError {
-  color: var(--danger);
+  color: var(--danger-text);
 }
 
 .formSuccess,
 .settingsMessage {
-  color: var(--success);
+  color: #16a34a;
 }
 
+/* ── Task list panel ─────────────────────────────────────────────────── */
 .taskListPanel {
   overflow: hidden;
   padding: 0;
@@ -536,31 +640,35 @@
   align-items: center;
   padding: 22px 24px;
   margin: 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
 }
 
+/* ── Completed toggle (secondary pill button) ────────────────────────── */
 .completedToggle {
   display: inline-flex;
-  min-height: 42px;
+  min-height: 40px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   padding: 0 13px;
   gap: 7px;
-  color: var(--ink-soft);
-  border: 1px solid var(--border-strong);
-  border-radius: 13px;
+  color: var(--ink-faint);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
   background: var(--surface-soft);
   font-size: 0.78rem;
-  font-weight: 670;
+  font-weight: 600;
+  transition:
+    color 150ms ease,
+    background 150ms ease;
 }
 
 .completedToggle:hover {
   color: var(--ink);
-  border-color: var(--border-strong);
-  background: #fff;
+  background: var(--surface-card);
 }
 
+/* ── Task list rows ──────────────────────────────────────────────────── */
 .taskList {
   display: grid;
   padding: 0;
@@ -575,8 +683,8 @@
   align-items: center;
   padding: 16px 20px;
   gap: 12px;
-  border-bottom: 1px solid #eee4ec;
-  background: rgba(255, 255, 255, 0.64);
+  border-bottom: 1px solid var(--hairline-soft);
+  background: var(--canvas);
   transition: background 150ms ease;
 }
 
@@ -586,42 +694,46 @@
 
 .taskItem:hover,
 .taskItem:focus-within {
-  background: #fffafd;
+  background: var(--surface-soft);
 }
 
 .taskItemDone {
-  background: #faf5fa;
+  background: var(--surface-soft);
 }
 
 .taskItemDone .taskBody h3 {
-  color: var(--ink-faint);
+  color: var(--ink-ghost);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
 
 .taskItemEditing {
-  background: #faf7fc;
+  background: var(--surface-card);
 }
 
+/* ── Task toggle (checkbox-style) ────────────────────────────────────── */
 .taskToggle {
   display: grid;
   width: 44px;
   height: 44px;
   place-items: center;
-  color: var(--accent);
+  color: var(--ink-faint);
   border: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   background: transparent;
+  transition: background 150ms ease, color 150ms ease;
 }
 
 .taskItemDone .taskToggle {
-  color: var(--plum);
+  color: var(--brand-teal);
 }
 
 .taskToggle:hover:not(:disabled) {
-  background: var(--accent-soft);
+  color: var(--ink);
+  background: var(--surface-card);
 }
 
+/* ── Task body ───────────────────────────────────────────────────────── */
 .taskBody {
   min-width: 0;
 }
@@ -642,7 +754,7 @@
 .taskBody h3 {
   overflow-wrap: anywhere;
   font-size: 0.94rem;
-  font-weight: 670;
+  font-weight: 600;
   line-height: 1.4;
 }
 
@@ -663,6 +775,88 @@
   gap: 6px;
 }
 
+/* ── Timer styles ────────────────────────────────────────────────────── */
+
+/* Running task row — teal left accent + warm tint */
+.taskItemRunning {
+  border-left: 3px solid var(--brand-teal) !important;
+  background: rgba(26, 58, 58, 0.04) !important;
+}
+
+.taskItemRunning:hover,
+.taskItemRunning:focus-within {
+  background: rgba(26, 58, 58, 0.07) !important;
+}
+
+/* Timer button — play/stop */
+.timerButton {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--ink-faint);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.timerButton:hover:not(:disabled) {
+  color: var(--brand-teal);
+  border-color: rgba(26, 58, 58, 0.2);
+  background: rgba(26, 58, 58, 0.07);
+}
+
+/* Active state — solid teal */
+.timerButtonActive {
+  color: var(--on-primary) !important;
+  border-color: var(--brand-teal) !important;
+  background: var(--brand-teal) !important;
+}
+
+.timerButtonActive:hover:not(:disabled) {
+  background: #0f2424 !important;
+}
+
+/* Timer elapsed display */
+.timerDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--brand-teal);
+  font-size: 0.76rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* Animated pulse dot for running timer */
+.timerPulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-teal);
+  animation: timerPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* Zero-time display — muted gray, no pulse */
+.timerDisplayZero {
+  color: var(--ink-ghost);
+  font-weight: 500;
+}
+
+/* ── Task action buttons ─────────────────────────────────────────────── */
 .taskActions,
 .moveControls,
 .inlineEditActions {
@@ -687,30 +881,32 @@
   height: 40px;
   flex: 0 0 auto;
   place-items: center;
-  color: var(--ink-soft);
+  color: var(--ink-faint);
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 10px;
   background: transparent;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
 }
 
 .iconButton:hover:not(:disabled) {
   color: var(--ink);
-  border-color: var(--border);
-  background: var(--surface-soft);
+  border-color: var(--hairline);
+  background: var(--surface-card);
 }
 
 .iconButtonPrimary {
-  color: #fff;
-  border-color: var(--accent);
-  background: var(--accent);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  background: var(--primary);
 }
 
 .deleteButton:hover:not(:disabled) {
-  color: var(--danger);
-  border-color: #efcfd8;
+  color: var(--danger-text);
+  border-color: #fecaca;
   background: var(--danger-soft);
 }
 
+/* ── Task busy spinner indicator ─────────────────────────────────────── */
 .taskBusyIndicator {
   display: inline-flex;
   min-height: 40px;
@@ -719,9 +915,10 @@
   gap: 7px;
   color: var(--ink-faint);
   font-size: 0.76rem;
-  font-weight: 650;
+  font-weight: 600;
 }
 
+/* ── Inline edit form ────────────────────────────────────────────────── */
 .inlineEditForm {
   display: grid;
   min-width: 0;
@@ -765,6 +962,7 @@
   gap: 4px;
 }
 
+/* ── Empty state ─────────────────────────────────────────────────────── */
 .emptyState {
   display: grid;
   justify-items: center;
@@ -779,14 +977,14 @@
   height: 50px;
   place-items: center;
   margin-bottom: 15px;
-  color: var(--accent);
-  border-radius: 17px;
-  background: var(--accent-soft);
+  color: var(--ink-faint);
+  border-radius: 16px;
+  background: var(--surface-card);
 }
 
 .emptyState h3 {
   font-size: 1rem;
-  font-weight: 680;
+  font-weight: 600;
 }
 
 .emptyState p {
@@ -797,6 +995,7 @@
   line-height: 1.55;
 }
 
+/* ── Generic loading panel ───────────────────────────────────────────── */
 .panel {
   display: flex;
   align-items: center;
@@ -806,14 +1005,15 @@
   font-size: 0.84rem;
 }
 
+/* ── Error / alert banners ───────────────────────────────────────────── */
 .actionError {
   display: flex;
   align-items: center;
   padding: 12px 14px;
   gap: 10px;
-  color: #74344f;
-  border: 1px solid #efcfd8;
-  border-radius: 14px;
+  color: var(--danger-text);
+  border: 1px solid #fecaca;
+  border-radius: 12px;
   background: var(--danger-soft);
   font-size: 0.8rem;
   line-height: 1.45;
@@ -830,12 +1030,12 @@
   place-items: center;
   color: inherit;
   border: 0;
-  border-radius: 11px;
+  border-radius: 10px;
   background: transparent;
 }
 
 .actionError button:hover {
-  background: rgba(175, 113, 157, 0.1);
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .dataError {
@@ -845,12 +1045,15 @@
 .retryButton {
   width: auto !important;
   padding: 0 13px;
-  border: 1px solid #e7bfd0 !important;
+  border: 1px solid #fca5a5 !important;
   background: rgba(255, 255, 255, 0.7) !important;
-  font-weight: 680;
+  font-weight: 600;
   white-space: nowrap;
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   Sign-in page
+   ════════════════════════════════════════════════════════════════════════ */
 .signInPage {
   display: grid;
   min-height: 100vh;
@@ -858,9 +1061,9 @@
   place-items: center;
   padding: 28px;
   background:
-    radial-gradient(circle at 12% 10%, rgba(248, 178, 178, 0.26), transparent 28rem),
-    radial-gradient(circle at 88% 90%, rgba(139, 99, 155, 0.16), transparent 30rem),
-    #f8f5fa;
+    radial-gradient(circle at 10% 12%, rgba(255, 176, 132, 0.22), transparent 30rem),
+    radial-gradient(circle at 88% 88%, rgba(184, 164, 237, 0.18), transparent 32rem),
+    var(--canvas);
 }
 
 .signInPanel {
@@ -869,10 +1072,12 @@
   max-width: calc(100vw - 56px);
   min-width: 0;
   padding: 48px;
-  border: 1px solid rgba(139, 99, 155, 0.22);
-  border-radius: 28px;
-  background: rgba(255, 253, 253, 0.96);
-  box-shadow: 0 24px 70px rgba(64, 61, 136, 0.11);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  background: var(--canvas);
+  box-shadow:
+    0 4px 24px rgba(10, 10, 10, 0.06),
+    0 1px 4px rgba(10, 10, 10, 0.04);
 }
 
 .signInBrand {
@@ -885,21 +1090,23 @@
 .signInBrand > span {
   width: 40px;
   height: 40px;
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 .signInBrand strong {
   color: var(--ink);
   font-size: 0.98rem;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
+/* Sign-in headline — display style with Plain Black warmth */
 .signInPanel h1 {
   margin: 10px 0 15px;
   color: var(--ink);
   font-size: clamp(2.25rem, 7vw, 3.25rem);
-  font-weight: 670;
-  letter-spacing: -0.06em;
+  font-weight: 500;
+  letter-spacing: -0.055em;
   line-height: 1.02;
 }
 
@@ -932,24 +1139,28 @@
   color: var(--success);
 }
 
+/* ── Google sign-in button ───────────────────────────────────────────── */
 .googleSignInButton {
   display: grid;
   width: 100%;
-  min-height: 54px;
+  min-height: 52px;
   grid-template-columns: 24px 1fr 24px;
   align-items: center;
   padding: 0 15px;
   color: var(--ink);
-  border: 1px solid var(--border-strong);
-  border-radius: 14px;
-  background: #fff;
-  font-size: 0.86rem;
-  font-weight: 700;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--canvas);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease;
 }
 
 .googleSignInButton:hover:not(:disabled) {
-  border-color: #b9a1c2;
-  background: #fffafd;
+  border-color: var(--ink-ghost);
+  background: var(--surface-card);
 }
 
 .googleMark {
@@ -961,8 +1172,8 @@
 .signInError {
   padding: 11px 12px;
   margin: 12px 0 0;
-  color: var(--danger);
-  border: 1px solid #efcfd8;
+  color: var(--danger-text);
+  border: 1px solid #fecaca;
   border-radius: 12px;
   background: var(--danger-soft);
   font-size: 0.78rem;
@@ -975,8 +1186,8 @@
   padding-top: 18px;
   margin: 18px 0 0;
   gap: 8px;
-  color: var(--ink-faint);
-  border-top: 1px solid var(--border);
+  color: var(--ink-ghost);
+  border-top: 1px solid var(--hairline);
   font-size: 0.76rem;
   line-height: 1.55;
 }
@@ -986,13 +1197,16 @@
   margin-top: 2px;
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   Focus & interaction states
+   ════════════════════════════════════════════════════════════════════════ */
 .formField > input:focus,
 .inputWithSuffix input:focus,
 .settingsInput:focus,
 .inlineEditFields input:focus {
-  border-color: var(--accent);
+  border-color: var(--primary);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(64, 61, 136, 0.16);
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
 }
 
 .signOutButton:focus-visible,
@@ -1004,8 +1218,8 @@
 .taskToggle:focus-visible,
 .actionError button:focus-visible,
 .googleSignInButton:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .signOutButton:disabled,
@@ -1020,9 +1234,10 @@
 .settingsInput:disabled,
 .inlineEditFields input:disabled {
   cursor: not-allowed;
-  opacity: 0.56;
+  opacity: 0.5;
 }
 
+/* ── Spinner animation ───────────────────────────────────────────────── */
 .spinner {
   animation: spin 850ms linear infinite;
 }
@@ -1033,6 +1248,9 @@
   }
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   Hover-only: fade task actions until row hovered
+   ════════════════════════════════════════════════════════════════════════ */
 @media (hover: hover) and (pointer: fine) {
   .taskActions {
     opacity: 0.22;
@@ -1045,6 +1263,9 @@
   }
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   Responsive
+   ════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 880px) {
   .controlsGrid {
     grid-template-columns: minmax(0, 1fr);
@@ -1063,7 +1284,7 @@
   }
 
   .headerInner {
-    min-height: 64px;
+    min-height: 60px;
   }
 
   .accountName {
@@ -1173,7 +1394,7 @@
 
   .signInPanel {
     padding: 36px 30px;
-    border-radius: 24px;
+    border-radius: 20px;
   }
 
   .signInBrand {
@@ -1228,7 +1449,7 @@
   .signInPanel {
     max-width: calc(100vw - 32px);
     padding: 32px 24px;
-    border-radius: 22px;
+    border-radius: 18px;
   }
 
   .signInPanel h1 {
@@ -1236,6 +1457,7 @@
   }
 }
 
+/* ── Reduced motion ──────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .spinner {
     animation-duration: 1ms;

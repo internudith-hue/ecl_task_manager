@@ -237,6 +237,45 @@ export async function deleteTask(
   await deleteDoc(taskDocument(uid, taskId));
 }
 
+/**
+ * Marks a task's timer as started by writing timerStartedAt = now.
+ * Does NOT touch trackedSeconds — that accumulates on stop.
+ */
+export async function startTimer(
+  uid: string,
+  taskId: string,
+): Promise<void> {
+  await updateDoc(taskDocument(uid, taskId), {
+    timerStartedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Stops a running timer: adds additionalSeconds to trackedSeconds and clears timerStartedAt.
+ */
+export async function stopTimer(
+  uid: string,
+  taskId: string,
+  additionalSeconds: number,
+): Promise<void> {
+  const safeExtra = Math.max(0, Math.round(additionalSeconds));
+  const taskRef = taskDocument(uid, taskId);
+
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(taskRef);
+    const current = snap.exists()
+      ? Math.max(0, Number(snap.data().trackedSeconds) || 0)
+      : 0;
+    tx.update(taskRef, {
+      trackedSeconds: current + safeExtra,
+      timerStartedAt: null,
+      updatedAt: serverTimestamp(),
+    });
+  });
+}
+
+
 export async function toggleTaskStatus(
   uid: string,
   taskId: string,
