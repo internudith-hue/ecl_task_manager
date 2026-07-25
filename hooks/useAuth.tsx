@@ -32,22 +32,26 @@ export interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 let localPersistencePromise: Promise<void> | null = null;
+const CANONICAL_NETLIFY_HOSTNAME =
+  process.env.NEXT_PUBLIC_CANONICAL_HOSTNAME || "ecl-task-manager.netlify.app";
 const CANONICAL_VERCEL_HOSTNAME = "ecl-task-manager.vercel.app";
 
-function redirectVercelPreviewToProduction(): boolean {
+function redirectPreviewToProduction(): boolean {
   if (typeof window === "undefined") return false;
 
   const { hostname } = window.location;
-  if (
-    !hostname.endsWith(".vercel.app") ||
-    hostname === CANONICAL_VERCEL_HOSTNAME
-  ) {
+  const isNetlifyPreview =
+    hostname.endsWith(".netlify.app") && hostname !== CANONICAL_NETLIFY_HOSTNAME;
+  const isVercelPreview =
+    hostname.endsWith(".vercel.app") && hostname !== CANONICAL_VERCEL_HOSTNAME;
+
+  if (!isNetlifyPreview && !isVercelPreview) {
     return false;
   }
 
   const productionUrl = new URL(window.location.href);
   productionUrl.protocol = "https:";
-  productionUrl.hostname = CANONICAL_VERCEL_HOSTNAME;
+  productionUrl.hostname = CANONICAL_NETLIFY_HOSTNAME;
   productionUrl.port = "";
   window.location.replace(productionUrl.toString());
   return true;
@@ -132,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      if (redirectVercelPreviewToProduction()) return;
+      if (redirectPreviewToProduction()) return;
 
       await ensureLocalPersistence();
       const provider = new GoogleAuthProvider();

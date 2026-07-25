@@ -47,13 +47,12 @@ npm test
 npm run build
 ```
 
-## Vercel deployment
+## Netlify deployment
 
-Vercel deploys this Next.js application directly from `main` with its native
-Next.js integration. The stable production URL is:
+Netlify deploys this Next.js application directly from `main` using `@netlify/plugin-nextjs` and `netlify.toml`. The stable production URL is:
 
 ```text
-https://ecl-task-manager.vercel.app
+https://ecl-task-manager.netlify.app
 ```
 
 Firebase web configuration is public project-identification metadata, not an
@@ -68,6 +67,6 @@ Settings → Authorized domains**. The same setting is versioned in
 npx firebase-tools deploy --only auth
 ```
 
-Generated Vercel deployment URLs redirect to the stable production hostname
+Generated Netlify deployment URLs (e.g. deploy preview builds) redirect to the stable production hostname
 before starting Google sign-in, avoiding a new Firebase domain entry for every
 preview build.
