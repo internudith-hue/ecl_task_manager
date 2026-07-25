@@ -275,6 +275,19 @@ export async function stopTimer(
   });
 }
 
+/**
+ * Stores or clears the associated Google Calendar Event ID for a task.
+ */
+export async function saveGcalEventId(
+  uid: string,
+  taskId: string,
+  gcalEventId: string | null,
+): Promise<void> {
+  await updateDoc(taskDocument(uid, taskId), {
+    gcalEventId: gcalEventId ? gcalEventId.trim() : null,
+    updatedAt: serverTimestamp(),
+  });
+}
 
 export async function toggleTaskStatus(
   uid: string,

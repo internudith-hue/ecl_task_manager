@@ -10,6 +10,7 @@ export interface Task {
   updatedAt: Date | null;
   trackedSeconds: number;       // total accumulated tracked seconds
   timerStartedAt: Date | null;  // null = stopped, Date = running since
+  gcalEventId: string | null;   // null = not synced to Google Calendar
 }
 
 export interface ScheduledTask extends Task {

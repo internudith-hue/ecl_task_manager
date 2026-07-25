@@ -35,6 +35,7 @@ function task(
     updatedAt: null,
     trackedSeconds: 0,
     timerStartedAt: null,
+    gcalEventId: null,
   };
 }
 

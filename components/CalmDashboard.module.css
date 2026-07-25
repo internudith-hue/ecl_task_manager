@@ -620,6 +620,140 @@
   color: var(--ink-faint);
 }
 
+/* ── Google Calendar Section ─────────────────────────────────────────── */
+.gcalSection {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gcalHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gcalTitle {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.gcalSubtitle {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.gcalConnectBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--surface-card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.gcalConnectBtn:hover {
+  border-color: var(--ink-ghost);
+  background: var(--surface-strong);
+}
+
+.gcalConnectedBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.gcalStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gcalBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #15803d;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.gcalDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.gcalLastSync {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.gcalActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gcalSyncBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.gcalSyncBtn:hover:not(:disabled) {
+  background: var(--primary-active);
+}
+
+.gcalDisconnectBtn {
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.gcalDisconnectBtn:hover:not(:disabled) {
+  color: #dc2626;
+  text-decoration: underline;
+}
+
 .formError {
   color: var(--danger-text);
 }

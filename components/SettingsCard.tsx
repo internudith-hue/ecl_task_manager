@@ -9,6 +9,13 @@ interface SettingsCardProps {
   hoursPerDay: number;
   loading?: boolean;
   onSave: (hoursPerDay: number) => Promise<void>;
+  isGCalConnected?: boolean;
+  isGCalSyncing?: boolean;
+  gcalLastSyncedAt?: Date | null;
+  gcalError?: Error | null;
+  onConnectGCal?: () => Promise<void>;
+  onDisconnectGCal?: () => void;
+  onSyncGCal?: () => Promise<void>;
 }
 
 function getErrorMessage(error: unknown) {
@@ -21,6 +28,13 @@ export function SettingsCard({
   hoursPerDay,
   loading = false,
   onSave,
+  isGCalConnected = false,
+  isGCalSyncing = false,
+  gcalLastSyncedAt = null,
+  gcalError = null,
+  onConnectGCal,
+  onDisconnectGCal,
+  onSyncGCal,
 }: SettingsCardProps) {
   const inputId = useId();
   const messageId = useId();
@@ -128,6 +142,78 @@ export function SettingsCard({
           {message?.text ?? ""}
         </p>
       </form>
+
+      {/* Google Calendar Section */}
+      <div className={styles.gcalSection}>
+        <div className={styles.gcalHeader}>
+          <h3 className={styles.gcalTitle}>Google Calendar Sync</h3>
+          <p className={styles.gcalSubtitle}>
+            Sync your task delivery dates automatically with Google Calendar.
+          </p>
+        </div>
+
+        {isGCalConnected ? (
+          <div className={styles.gcalConnectedBox}>
+            <div className={styles.gcalStatusRow}>
+              <span className={styles.gcalBadge}>
+                <span className={styles.gcalDot} />
+                Connected
+              </span>
+              {gcalLastSyncedAt && (
+                <span className={styles.gcalLastSync}>
+                  Last synced: {gcalLastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.gcalActionsRow}>
+              <button
+                type="button"
+                className={styles.gcalSyncBtn}
+                onClick={onSyncGCal}
+                disabled={isGCalSyncing}
+              >
+                {isGCalSyncing ? (
+                  <>
+                    <LoaderCircle className={styles.spinner} size={14} />
+                    Syncing…
+                  </>
+                ) : (
+                  "Sync now"
+                )}
+              </button>
+              <button
+                type="button"
+                className={styles.gcalDisconnectBtn}
+                onClick={onDisconnectGCal}
+                disabled={isGCalSyncing}
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className={styles.gcalConnectBtn}
+            onClick={onConnectGCal}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M16 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Connect Google Calendar
+          </button>
+        )}
+
+        {gcalError && (
+          <p className={styles.formError} role="alert">
+            {gcalError.message}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

@@ -32,7 +32,8 @@ service cloud.firestore {
           'createdAt',
           'updatedAt',
           'trackedSeconds',
-          'timerStartedAt'
+          'timerStartedAt',
+          'gcalEventId'
         ])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0

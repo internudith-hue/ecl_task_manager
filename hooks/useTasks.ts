@@ -62,6 +62,7 @@ function mapTask(
     updatedAt: asDate(data.updatedAt),
     trackedSeconds: Math.max(0, asFiniteNumber(data.trackedSeconds, 0)),
     timerStartedAt: asDate(data.timerStartedAt),
+    gcalEventId: typeof data.gcalEventId === "string" ? data.gcalEventId : null,
   };
 }
 

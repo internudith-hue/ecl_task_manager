@@ -20,6 +20,7 @@ import { TaskForm } from "@/components/TaskForm";
 import { TaskList } from "@/components/TaskList";
 import styles from "@/components/CalmDashboard.module.css";
 import { useAuth } from "@/hooks/useAuth";
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 import { useSettings } from "@/hooks/useSettings";
 import { useTaskTimer } from "@/hooks/useTaskTimer";
 import { useTasks } from "@/hooks/useTasks";
@@ -90,6 +91,16 @@ function DashboardContent() {
 
   const { activeTaskId: activeTimerTaskId, elapsedMap, handleStart: handleStartTimer, handleStop: handleStopTimer } =
     useTaskTimer(user?.uid, tasks);
+
+  const {
+    isConnected: isGCalConnected,
+    isSyncing: isGCalSyncing,
+    lastSyncedAt: gcalLastSyncedAt,
+    error: gcalError,
+    connectCalendar: connectGCal,
+    disconnectCalendar: disconnectGCal,
+    syncAll: syncGCalAll,
+  } = useGoogleCalendar(user?.uid);
 
   const schedule = useMemo(
     () =>
@@ -228,6 +239,13 @@ function DashboardContent() {
                   hoursPerDay={hoursPerDay}
                   loading={settingsLoading}
                   onSave={updateHoursPerDay}
+                  isGCalConnected={isGCalConnected}
+                  isGCalSyncing={isGCalSyncing}
+                  gcalLastSyncedAt={gcalLastSyncedAt}
+                  gcalError={gcalError}
+                  onConnectGCal={connectGCal}
+                  onDisconnectGCal={disconnectGCal}
+                  onSyncGCal={() => syncGCalAll(schedule, hoursPerDay)}
                 />
               </div>
 
