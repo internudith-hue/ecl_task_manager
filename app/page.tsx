@@ -4,9 +4,7 @@ import {
   AlertTriangle,
   ArrowRight,
   CalendarClock,
-  CalendarDays,
   Check,
-  List,
   LoaderCircle,
   LockKeyhole,
 } from "lucide-react";
@@ -71,11 +69,9 @@ function useToday() {
   return today;
 }
 
-type ViewMode = "list" | "calendar";
 
 function DashboardContent() {
   const { user, signOut } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const today = useToday();
   const {
     tasks,
@@ -157,31 +153,6 @@ function DashboardContent() {
           </div>
         </section>
 
-        {/* View toggle — List / Calendar */}
-        <div className={styles.viewToggle} role="tablist" aria-label="View mode">
-          <button
-            id="tab-list"
-            role="tab"
-            aria-selected={viewMode === "list"}
-            aria-controls="panel-list"
-            className={`${styles.viewTab} ${viewMode === "list" ? styles.viewTabActive : ""}`}
-            onClick={() => setViewMode("list")}
-          >
-            <List size={14} aria-hidden="true" />
-            List
-          </button>
-          <button
-            id="tab-calendar"
-            role="tab"
-            aria-selected={viewMode === "calendar"}
-            aria-controls="panel-calendar"
-            className={`${styles.viewTab} ${viewMode === "calendar" ? styles.viewTabActive : ""}`}
-            onClick={() => setViewMode("calendar")}
-          >
-            <CalendarDays size={14} aria-hidden="true" />
-            Calendar
-          </button>
-        </div>
 
         {tasksError ? (
           <div
@@ -226,13 +197,8 @@ function DashboardContent() {
               hoursPerDay={hoursPerDay}
             />
 
-            {/* LIST VIEW */}
-            <div
-              id="panel-list"
-              role="tabpanel"
-              aria-labelledby="tab-list"
-              hidden={viewMode !== "list"}
-            >
+            {/* TASK LIST */}
+            <div id="panel-list">
               <div className={styles.controlsGrid} aria-label="Queue controls">
                 <TaskForm
                   addError={addTaskError}
@@ -277,15 +243,8 @@ function DashboardContent() {
               />
             </div>
 
-            {/* CALENDAR VIEW */}
-            <div
-              id="panel-calendar"
-              role="tabpanel"
-              aria-labelledby="tab-calendar"
-              hidden={viewMode !== "calendar"}
-            >
-              <CalendarView schedule={schedule} today={today} />
-            </div>
+            {/* CALENDAR — always visible below the task list */}
+            <CalendarView schedule={schedule} today={today} />
           </>
         )}
       </main>
