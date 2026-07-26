@@ -21,7 +21,8 @@ function assertValidHoursPerDay(hoursPerDay: number): void {
 }
 
 /**
- * Converts a positive task estimate into the number of working days it needs.
+ * Converts a positive task estimate into the number of working days it needs
+ * when scheduled alone (i.e., no intra-day packing considered here).
  */
 export function ceilDays(hours: number, hoursPerDay: number): number {
   assertValidHoursPerDay(hoursPerDay);
@@ -79,7 +80,19 @@ export function addWorkingDays(date: Date, numberOfDays: number): Date {
 }
 
 /**
- * Builds a contiguous weekday-only schedule without mutating the source tasks.
+ * Builds a contiguous weekday-only schedule with intra-day bin packing:
+ * multiple short tasks are packed into the same day if they fit within
+ * hoursPerDay, rather than each task always consuming its own full day.
+ *
+ * Algorithm:
+ *   - cursor = current day, hoursUsedToday = 0
+ *   - For each pending task (sorted by order):
+ *       - remainingToday = hoursPerDay - hoursUsedToday
+ *       - startDate = cursor
+ *       - Walk hours through days:
+ *           remaining task hours → fill remainingToday → advance day if needed
+ *       - endDate = cursor (after consuming all hours)
+ *       - durationDays = working days from startDate to endDate inclusive
  */
 export function buildSchedule(
   tasks: Task[],
@@ -93,6 +106,10 @@ export function buildSchedule(
     cursor = nextWorkingDay(cursor);
   }
 
+  // Track how many hours of the current cursor-day have already been used
+  // by previously scheduled tasks (bin-packing state).
+  let hoursUsedToday = 0;
+
   const pendingTasks = tasks
     .map((task, index) => ({ task, index }))
     .filter(({ task }) => task.status === "pending")
@@ -102,11 +119,47 @@ export function buildSchedule(
     );
 
   return pendingTasks.map(({ task }) => {
-    const durationDays = ceilDays(task.hours, hoursPerDay);
-    const scheduledStart = new Date(cursor.getTime());
-    const scheduledEnd = addWorkingDays(scheduledStart, durationDays - 1);
+    // Validate hours
+    if (!Number.isFinite(task.hours) || task.hours <= 0) {
+      throw new RangeError("hours must be a finite number greater than 0");
+    }
 
-    cursor = nextWorkingDay(scheduledEnd);
+    const scheduledStart = new Date(cursor.getTime());
+    let hoursLeft = task.hours;
+
+    // Fill current day first, then overflow into subsequent working days
+    while (hoursLeft > 0) {
+      const remainingToday = hoursPerDay - hoursUsedToday;
+
+      if (hoursLeft <= remainingToday) {
+        // Task fits (entirely or partially) within today
+        hoursUsedToday += hoursLeft;
+        hoursLeft = 0;
+      } else {
+        // Today is fully consumed; spill into next working day
+        hoursLeft -= remainingToday;
+        cursor = nextWorkingDay(cursor);
+        hoursUsedToday = 0;
+      }
+    }
+
+    // cursor now points to the last day this task uses.
+    // Record that as endDate before potentially advancing for the next task.
+    const scheduledEnd = new Date(cursor.getTime());
+
+    // If today is now exactly full, next task must start on a new working day.
+    if (hoursUsedToday >= hoursPerDay) {
+      cursor = nextWorkingDay(cursor);
+      hoursUsedToday = 0;
+    }
+
+    // Count inclusive working days from start to end
+    let durationDays = 1;
+    let counter = normalizeDate(scheduledStart);
+    while (counter.getTime() < scheduledEnd.getTime()) {
+      counter = nextWorkingDay(counter);
+      durationDays += 1;
+    }
 
     return {
       ...task,

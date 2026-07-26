@@ -125,7 +125,57 @@ describe("working-day helpers", () => {
 });
 
 describe("buildSchedule", () => {
-  it("sorts pending tasks, filters done tasks, and schedules inclusive spans", () => {
+  it("packs small tasks into the same day when they fit within hoursPerDay", () => {
+    // 2h + 3h = 5h total → both fit in 8h/day → both on Jul 27
+    const tasks = [
+      task("mofa", 10, 2),
+      task("chan", 20, 3),
+    ];
+
+    const result = buildSchedule(tasks, 8, localDate(2026, 7, 27));
+
+    expect(result.map(({ id }) => id)).toEqual(["mofa", "chan"]);
+    expect(result).toMatchObject([
+      { id: "mofa", durationDays: 1, startDate: localDate(2026, 7, 27), endDate: localDate(2026, 7, 27) },
+      { id: "chan", durationDays: 1, startDate: localDate(2026, 7, 27), endDate: localDate(2026, 7, 27) },
+    ]);
+  });
+
+  it("fills a day exactly and starts next task on a new day", () => {
+    // 5h + 3h = 8h exactly fills the day → task B starts next day
+    const tasks = [
+      task("a", 10, 5),
+      task("b", 20, 3),
+      task("c", 30, 1),
+    ];
+
+    const result = buildSchedule(tasks, 8, localDate(2026, 7, 27));
+
+    expect(result).toMatchObject([
+      { id: "a", startDate: localDate(2026, 7, 27), endDate: localDate(2026, 7, 27) },
+      { id: "b", startDate: localDate(2026, 7, 27), endDate: localDate(2026, 7, 27) },
+      // a+b = 8h → day full; c starts Jul 28
+      { id: "c", startDate: localDate(2026, 7, 28), endDate: localDate(2026, 7, 28) },
+    ]);
+  });
+
+  it("overflows large tasks across multiple working days", () => {
+    // 9h task at 8h/day → spans Jul 24 (8h) into Jul 27 (1h)
+    const tasks = [
+      task("big", 10, 9),
+      task("small", 20, 1),
+    ];
+
+    const result = buildSchedule(tasks, 8, localDate(2026, 7, 24));
+
+    expect(result).toMatchObject([
+      { id: "big", durationDays: 2, startDate: localDate(2026, 7, 24), endDate: localDate(2026, 7, 27) },
+      // Jul 27 still has 7h left → small fits on Jul 27
+      { id: "small", durationDays: 1, startDate: localDate(2026, 7, 27), endDate: localDate(2026, 7, 27) },
+    ]);
+  });
+
+  it("sorts pending tasks, filters done tasks, and schedules using bin-packing", () => {
     const tasks = [
       task("third", 30, 1),
       task("done", 5, 8, "done"),
@@ -133,6 +183,9 @@ describe("buildSchedule", () => {
       task("second", 20, 8),
     ];
 
+    // first=9h → Jul 24 (8h used) + Jul 27 (1h used, 7h left)
+    // second=8h → Jul 27 has 7h left, second needs 8h → 7h today + 1h Jul 28
+    // third=1h → Jul 28 has 7h left → fits Jul 28
     const result = buildSchedule(tasks, 8, localDate(2026, 7, 24, 15, 30));
 
     expect(result.map(({ id }) => id)).toEqual(["first", "second", "third"]);
@@ -145,15 +198,15 @@ describe("buildSchedule", () => {
       },
       {
         id: "second",
-        durationDays: 1,
-        startDate: localDate(2026, 7, 28),
+        durationDays: 2,
+        startDate: localDate(2026, 7, 27),
         endDate: localDate(2026, 7, 28),
       },
       {
         id: "third",
         durationDays: 1,
-        startDate: localDate(2026, 7, 29),
-        endDate: localDate(2026, 7, 29),
+        startDate: localDate(2026, 7, 28),
+        endDate: localDate(2026, 7, 28),
       },
     ]);
   });
@@ -205,3 +258,4 @@ describe("buildSchedule", () => {
     ).toThrow(RangeError);
   });
 });
+
