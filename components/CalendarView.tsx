@@ -170,18 +170,25 @@ function MonthGrid({ base, today, schedule, colorMap }: MonthGridProps) {
         {cells.map((date) => {
           const dayStart = startOfDay(date);
 
-          const tasksOnDay: TaskOnDay[] = schedule
-            .filter((t) => {
-              const s = startOfDay(t.startDate);
-              const e = startOfDay(t.endDate);
-              return dayStart >= s && dayStart <= e;
-            })
-            .map((t) => ({
-              task: t,
-              colorIndex: colorMap.get(t.id) ?? 0,
-              isStart: isSameDay(dayStart, t.startDate),
-              isEnd: isSameDay(dayStart, t.endDate),
-            }));
+          const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon … 6=Sat
+          const isWeekday = dayOfWeek !== 0 && dayOfWeek !== 6;
+
+          const tasksOnDay: TaskOnDay[] = !isWeekday
+            ? [] // never paint chips on weekend cells
+            : schedule
+                .filter((t) => {
+                  const s = startOfDay(t.startDate);
+                  const e = startOfDay(t.endDate);
+                  return dayStart >= s && dayStart <= e;
+                })
+                .map((t) => ({
+                  task: t,
+                  colorIndex: colorMap.get(t.id) ?? 0,
+                  // Open the pill on the real start day OR on Monday (after a weekend gap)
+                  isStart: isSameDay(dayStart, t.startDate) || dayOfWeek === 1,
+                  // Close the pill on the real end day OR on Friday (before a weekend gap)
+                  isEnd: isSameDay(dayStart, t.endDate) || dayOfWeek === 5,
+                }));
 
           return (
             <DayCell
