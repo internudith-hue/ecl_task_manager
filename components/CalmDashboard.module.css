@@ -582,10 +582,10 @@
 
 /* ── Settings form ───────────────────────────────────────────────────── */
 .settingsForm {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
 }
 
 .settingsInput {
