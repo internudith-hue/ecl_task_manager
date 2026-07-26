@@ -82,9 +82,10 @@ function DashboardContent() {
   const [addTaskError, setAddTaskError] = useState<string | null>(null);
   const {
     hoursPerDay,
+    internSupervisionHours,
     loading: settingsLoading,
     error: settingsError,
-    updateHoursPerDay,
+    updatePaceSettings,
   } = useSettings(user?.uid);
 
   const { activeTaskId: activeTimerTaskId, elapsedMap, handleStart: handleStartTimer, handleStop: handleStopTimer } =
@@ -213,8 +214,9 @@ function DashboardContent() {
                 />
                 <SettingsCard
                   hoursPerDay={hoursPerDay}
+                  internSupervisionHours={internSupervisionHours}
                   loading={settingsLoading}
-                  onSave={updateHoursPerDay}
+                  onSave={updatePaceSettings}
                   isGCalConnected={isGCalConnected}
                   isGCalSyncing={isGCalSyncing}
                   gcalLastSyncedAt={gcalLastSyncedAt}

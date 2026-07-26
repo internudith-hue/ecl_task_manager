@@ -12,14 +12,16 @@ export const MAX_HOURS_PER_DAY = 24;
 
 const DEFAULT_SETTINGS: UserSettings = {
   hoursPerDay: DEFAULT_HOURS_PER_DAY,
+  internSupervisionHours: 0,
 };
 
 export interface UseSettingsResult {
   settings: UserSettings;
   hoursPerDay: number;
+  internSupervisionHours: number;
   loading: boolean;
   error: Error | null;
-  updateHoursPerDay: (hoursPerDay: number) => Promise<void>;
+  updatePaceSettings: (hoursPerDay: number, internSupervisionHours: number) => Promise<void>;
 }
 
 interface SettingsSubscriptionState {
@@ -56,12 +58,16 @@ export function useSettings(uid?: string | null): UseSettingsResult {
       doc(db, "users", uid),
       (snapshot) => {
         const hoursPerDay = snapshot.data()?.hoursPerDay;
+        const internSupervisionHours = snapshot.data()?.internSupervisionHours;
         setSubscription({
           uid,
           settings: {
             hoursPerDay: validHoursPerDay(hoursPerDay)
               ? hoursPerDay
               : DEFAULT_HOURS_PER_DAY,
+            internSupervisionHours: typeof internSupervisionHours === "number" && internSupervisionHours >= 0
+              ? internSupervisionHours
+              : 0,
           },
           error: null,
         });
@@ -76,19 +82,29 @@ export function useSettings(uid?: string | null): UseSettingsResult {
     );
   }, [uid]);
 
-  const updateHoursPerDay = useCallback(
-    async (hoursPerDay: number) => {
-      if (!uid) {
-        throw new Error("You must be signed in to update settings.");
-      }
-      if (!validHoursPerDay(hoursPerDay)) {
+  const updatePaceSettings = useCallback(
+    async (newHoursPerDay: number, newInternSupervisionHours: number) => {
+      if (!uid) throw new Error("Must be logged in to save settings");
+
+      if (!validHoursPerDay(newHoursPerDay)) {
         throw new Error(
-          `Hours per day must be between ${MIN_HOURS_PER_DAY} and ${MAX_HOURS_PER_DAY}.`,
+          `Focus time must be between ${MIN_HOURS_PER_DAY} and ${MAX_HOURS_PER_DAY}`,
         );
       }
 
+      if (typeof newInternSupervisionHours !== "number" || newInternSupervisionHours < 0) {
+        throw new Error("Intern supervision hours must be a positive number.");
+      }
+
       try {
-        await setDoc(doc(db, "users", uid), { hoursPerDay }, { merge: true });
+        await setDoc(
+          doc(db, "users", uid),
+          { 
+            hoursPerDay: newHoursPerDay,
+            internSupervisionHours: newInternSupervisionHours,
+          },
+          { merge: true },
+        );
       } catch (nextError) {
         throw asError(nextError);
       }
@@ -103,8 +119,9 @@ export function useSettings(uid?: string | null): UseSettingsResult {
   return {
     settings,
     hoursPerDay: settings.hoursPerDay,
+    internSupervisionHours: settings.internSupervisionHours,
     loading: Boolean(uid) && !currentSubscription,
     error: currentSubscription?.error ?? null,
-    updateHoursPerDay,
+    updatePaceSettings,
   };
 }

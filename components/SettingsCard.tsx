@@ -7,8 +7,9 @@ import styles from "./CalmDashboard.module.css";
 
 interface SettingsCardProps {
   hoursPerDay: number;
+  internSupervisionHours: number;
   loading?: boolean;
-  onSave: (hoursPerDay: number) => Promise<void>;
+  onSave: (hoursPerDay: number, internSupervisionHours: number) => Promise<void>;
   isGCalConnected?: boolean;
   isGCalSyncing?: boolean;
   gcalLastSyncedAt?: Date | null;
@@ -26,6 +27,7 @@ function getErrorMessage(error: unknown) {
 
 export function SettingsCard({
   hoursPerDay,
+  internSupervisionHours,
   loading = false,
   onSave,
   isGCalConnected = false,
@@ -37,18 +39,25 @@ export function SettingsCard({
   onSyncGCal,
 }: SettingsCardProps) {
   const inputId = useId();
+  const internInputId = useId();
   const messageId = useId();
   const [draft, setDraft] = useState<string | null>(null);
+  const [draftIntern, setDraftIntern] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{
     tone: "success" | "error";
     text: string;
   } | null>(null);
   const displayedDraft = draft ?? String(hoursPerDay);
+  const displayedDraftIntern = draftIntern ?? String(internSupervisionHours);
+
+  const totalHours = Number(displayedDraft) + Number(displayedDraftIntern);
+  const isOverallocated = totalHours > 8;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = Number(displayedDraft);
+    const internValue = Number(displayedDraftIntern);
 
     if (!Number.isFinite(value) || value < 0.25 || value > 24) {
       setMessage({
@@ -58,12 +67,21 @@ export function SettingsCard({
       return;
     }
 
+    if (!Number.isFinite(internValue) || internValue < 0 || internValue > 24) {
+      setMessage({
+        tone: "error",
+        text: "Intern supervision must be a valid number.",
+      });
+      return;
+    }
+
     setSaving(true);
     setMessage(null);
 
     try {
-      await onSave(value);
+      await onSave(value, internValue);
       setDraft(null);
+      setDraftIntern(null);
       setMessage({ tone: "success", text: "Your pace is saved." });
     } catch (error) {
       setMessage({ tone: "error", text: getErrorMessage(error) });
@@ -110,11 +128,42 @@ export function SettingsCard({
           </div>
         </div>
 
+        <div className={styles.settingsField}>
+          <label htmlFor={internInputId}>Intern supervision</label>
+          <div className={styles.settingsControl}>
+            <input
+              id={internInputId}
+              className={styles.settingsInput}
+              type="number"
+              value={displayedDraftIntern}
+              min="0"
+              max="24"
+              step="0.25"
+              inputMode="decimal"
+              onChange={(event) => {
+                setDraftIntern(event.target.value);
+                setMessage(null);
+              }}
+              disabled={loading || saving}
+            />
+            <span className={styles.settingsSuffix}>hrs / day</span>
+          </div>
+        </div>
+
+        {isOverallocated && (
+          <div className={`${styles.actionError} ${styles.dataError}`} style={{ marginTop: '12px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', lineHeight: '1.4' }}>
+              <strong>Warning: You allocated more than 8 hours per day.</strong><br/>
+              Working more than 8 hours total (Focus Time + Intern Supervision) is not recommended for your health and career.
+            </span>
+          </div>
+        )}
+
         <button
           className={styles.settingsButton}
           type="submit"
           disabled={
-            loading || saving || Number(displayedDraft) === hoursPerDay
+            loading || saving || (Number(displayedDraft) === hoursPerDay && Number(displayedDraftIntern) === internSupervisionHours)
           }
         >
           {saving ? (
@@ -162,7 +211,7 @@ export function SettingsCard({
                 </span>
                 {gcalLastSyncedAt && (
                   <span className={styles.gcalLastSync}>
-                    Last synced: {gcalLastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    Last synced: {gcalLastSyncedAt?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 )}
               </div>
@@ -211,7 +260,7 @@ export function SettingsCard({
 
           {gcalError && (
             <p className={styles.formError} role="alert">
-              {gcalError.message}
+              {gcalError?.message}
             </p>
           )}
         </div>

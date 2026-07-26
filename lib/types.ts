@@ -25,4 +25,5 @@ export interface ScheduledTask extends Task {
 
 export interface UserSettings {
   hoursPerDay: number;
+  internSupervisionHours: number;
 }
