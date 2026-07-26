@@ -81,7 +81,9 @@ function DashboardContent() {
     tasks,
     loading: tasksLoading,
     error: tasksError,
+    addOptimisticTask,
   } = useTasks(user?.uid);
+  const [addTaskError, setAddTaskError] = useState<string | null>(null);
   const {
     hoursPerDay,
     loading: settingsLoading,
@@ -233,7 +235,15 @@ function DashboardContent() {
             >
               <div className={styles.controlsGrid} aria-label="Queue controls">
                 <TaskForm
-                  onSubmit={(input) => addTask(user.uid, input).then(() => {})}
+                  addError={addTaskError}
+                  onSubmit={(input) => {
+                    setAddTaskError(null);
+                    addOptimisticTask(
+                      input,
+                      async () => { await addTask(user.uid, input); },
+                      (err) => setAddTaskError(err.message),
+                    );
+                  }}
                 />
                 <SettingsCard
                   hoursPerDay={hoursPerDay}

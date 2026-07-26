@@ -845,7 +845,26 @@
   background: var(--surface-card);
 }
 
-/* ── Task toggle (checkbox-style) ────────────────────────────────────── */
+/* ── Optimistic task row (in-flight, not yet confirmed by Firestore) ─── */
+@keyframes shimmerPulse {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.taskItemOptimistic {
+  opacity: 0.65;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--surface-soft) 25%,
+    color-mix(in srgb, var(--brand-teal) 8%, var(--surface-soft)) 50%,
+    var(--surface-soft) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerPulse 1.6s ease-in-out infinite;
+}
+
+
 .taskToggle {
   display: grid;
   width: 44px;

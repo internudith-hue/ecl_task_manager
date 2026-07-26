@@ -308,6 +308,7 @@ export function TaskList({
         <ol className={styles.taskList} aria-busy={hasBusyTask}>
           {visibleTasks.map((task) => {
             const isDone = task.status === "done";
+            const isOptimistic = Boolean(task.isOptimistic);
             const pendingIndex = pendingTasks.findIndex(
               (pendingTask) => pendingTask.id === task.id,
             );
@@ -321,9 +322,10 @@ export function TaskList({
                   isDone ? styles.taskItemDone : ""
                 } ${isEditing ? styles.taskItemEditing : ""} ${
                   activeTimerTaskId === task.id ? styles.taskItemRunning : ""
-                }`}
+                } ${isOptimistic ? styles.taskItemOptimistic : ""}`}
                 key={task.id}
-                aria-busy={isBusy}
+                aria-busy={isBusy || isOptimistic}
+                aria-label={isOptimistic ? `Adding ${task.name}…` : undefined}
               >
                 <button
                   className={styles.taskToggle}
@@ -342,7 +344,7 @@ export function TaskList({
                       },
                     )
                   }
-                  disabled={hasBusyTask || isEditing}
+                  disabled={hasBusyTask || isEditing || isOptimistic}
                   aria-label={
                     isDone
                       ? `Move ${task.name} back to the queue`

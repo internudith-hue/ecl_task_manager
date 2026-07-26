@@ -9,15 +9,21 @@ import {
   type DocumentData,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { db } from "@/lib/firebase";
+import { TASK_ORDER_SPACING } from "@/lib/tasks";
 import type { Task, TaskStatus } from "@/lib/types";
 
 export interface UseTasksResult {
   tasks: Task[];
   loading: boolean;
   error: Error | null;
+  addOptimisticTask: (
+    input: { name: string; hours: number },
+    doWrite: () => Promise<void>,
+    onError: (error: Error) => void,
+  ) => void;
 }
 
 interface TasksSubscriptionState {
@@ -76,6 +82,13 @@ export function useTasks(uid?: string | null): UseTasksResult {
   const [subscription, setSubscription] =
     useState<TasksSubscriptionState | null>(null);
 
+  // Optimistic tasks: shown immediately while Firestore write is in-flight
+  const [optimisticTasks, setOptimisticTasks] = useState<Task[]>([]);
+
+  // Mutable ref so addOptimisticTask always sees the current real task list
+  const subscriptionRef = useRef<TasksSubscriptionState | null>(null);
+  subscriptionRef.current = subscription;
+
   useEffect(() => {
     if (!uid) {
       return;
@@ -105,17 +118,91 @@ export function useTasks(uid?: string | null): UseTasksResult {
     );
   }, [uid]);
 
+  /**
+   * Adds a task optimistically (instant UI update) while the Firestore write
+   * runs in the background. Calls `onError` and removes the optimistic entry
+   * if the write fails.
+   */
+  const addOptimisticTask = useCallback(
+    (
+      input: { name: string; hours: number },
+      doWrite: () => Promise<void>,
+      onError: (error: Error) => void,
+    ) => {
+      const tempId =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `temp-${Date.now()}-${Math.random()}`;
+
+      const currentTasks = subscriptionRef.current?.tasks ?? [];
+      const maxOrder = currentTasks.reduce(
+        (max, t) => Math.max(max, t.order),
+        0,
+      );
+      const optimisticOrder = maxOrder + TASK_ORDER_SPACING;
+
+      const optimisticTask: Task = {
+        id: tempId,
+        name: input.name.trim(),
+        hours: input.hours,
+        status: "pending",
+        order: optimisticOrder,
+        createdAt: null,
+        updatedAt: null,
+        trackedSeconds: 0,
+        timerStartedAt: null,
+        gcalEventId: null,
+        isOptimistic: true,
+        tempId,
+      };
+
+      setOptimisticTasks((prev) => [...prev, optimisticTask]);
+
+      void doWrite()
+        .then(() => {
+          // Write succeeded — Firestore snapshot will add the real task;
+          // remove the placeholder so it doesn't appear twice.
+          setOptimisticTasks((prev) => prev.filter((t) => t.tempId !== tempId));
+        })
+        .catch((writeError) => {
+          // Write failed — remove placeholder and surface the error.
+          setOptimisticTasks((prev) => prev.filter((t) => t.tempId !== tempId));
+          onError(
+            writeError instanceof Error
+              ? writeError
+              : new Error("Failed to add task. Please try again."),
+          );
+        });
+    },
+    [],
+  );
+
   if (!uid) {
-    return { tasks: [], loading: false, error: null };
+    return {
+      tasks: [],
+      loading: false,
+      error: null,
+      addOptimisticTask,
+    };
   }
 
   if (subscription?.uid !== uid) {
-    return { tasks: [], loading: true, error: null };
+    return {
+      tasks: [],
+      loading: true,
+      error: null,
+      addOptimisticTask,
+    };
   }
 
+  // Merge real tasks with in-flight optimistic tasks.
+  // Optimistic tasks always go at the end (highest order).
+  const mergedTasks = [...subscription.tasks, ...optimisticTasks];
+
   return {
-    tasks: subscription.tasks,
+    tasks: mergedTasks,
     loading: false,
     error: subscription.error,
+    addOptimisticTask,
   };
 }
