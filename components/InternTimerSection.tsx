@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Square, Timer } from "lucide-react";
+import { LoaderCircle, Play, Square, Timer } from "lucide-react";
 
 import { useInternTimer } from "@/hooks/useInternTimer";
 import { toDateKey } from "@/lib/internSupervision";
@@ -46,8 +46,15 @@ const timeFormatter = new Intl.DateTimeFormat("en", {
 
 export function InternTimerSection({ uid, today }: InternTimerSectionProps) {
   const dateKey = toDateKey(today);
-  const { isRunning, todayTotalSeconds, stopLog, handleStart, handleStop } =
-    useInternTimer(uid, today);
+  const {
+    isRunning,
+    todayTotalSeconds,
+    stopLog,
+    isPending,
+    error,
+    handleStart,
+    handleStop,
+  } = useInternTimer(uid, today);
 
   return (
     <div className={styles.internTimerSection} aria-label="Intern supervision timer">
@@ -77,10 +84,15 @@ export function InternTimerSection({ uid, today }: InternTimerSectionProps) {
             type="button"
             className={styles.internStopButton}
             onClick={() => void handleStop()}
+            disabled={isPending}
             aria-label="Stop intern supervision timer"
           >
-            <Square size={13} aria-hidden="true" />
-            Stop
+            {isPending ? (
+              <LoaderCircle size={13} aria-hidden="true" className={styles.spinner} />
+            ) : (
+              <Square size={13} aria-hidden="true" />
+            )}
+            {isPending ? "Stopping…" : "Stop"}
           </button>
         ) : (
           <button
@@ -88,13 +100,25 @@ export function InternTimerSection({ uid, today }: InternTimerSectionProps) {
             type="button"
             className={styles.internStartButton}
             onClick={() => void handleStart()}
+            disabled={isPending}
             aria-label="Start intern supervision timer"
           >
-            <Play size={13} aria-hidden="true" />
-            Start supervision
+            {isPending ? (
+              <LoaderCircle size={13} aria-hidden="true" className={styles.spinner} />
+            ) : (
+              <Play size={13} aria-hidden="true" />
+            )}
+            {isPending ? "Starting…" : "Start supervision"}
           </button>
         )}
       </div>
+
+      {/* Error feedback */}
+      {error && (
+        <p className={styles.formError} role="alert" style={{ fontSize: "0.75rem" }}>
+          {error}
+        </p>
+      )}
 
       {/* Today's cumulative total */}
       <p className={styles.internTimerSummary}>

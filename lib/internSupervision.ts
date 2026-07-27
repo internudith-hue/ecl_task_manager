@@ -131,6 +131,9 @@ export async function stopInternTimer(
 ): Promise<void> {
   const safeExtra = Math.max(0, Math.round(additionalSeconds));
   const ref = sessionDoc(uid, dateKey);
+  // Use a client-side timestamp for the log entry.
+  // Firestore's serverTimestamp() sentinel cannot be nested inside an array element.
+  const stoppedAt = new Date();
 
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
@@ -147,7 +150,7 @@ export async function stopInternTimer(
         stopLog: [
           ...existingLog,
           {
-            stoppedAt: serverTimestamp(),
+            stoppedAt,
             sessionSeconds: safeExtra,
           },
         ],

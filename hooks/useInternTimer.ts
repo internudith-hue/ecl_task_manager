@@ -17,9 +17,13 @@ export interface UseInternTimerResult {
   todayTotalSeconds: number;
   /** The stop-log entries for today (appended each time the timer is stopped). */
   stopLog: InternStopLogEntry[];
-  /** Start the intern supervision timer. No-op if already running. */
+  /** True while a Firestore write is in-flight — use to disable buttons. */
+  isPending: boolean;
+  /** Non-null when the last start/stop write failed. */
+  error: string | null;
+  /** Start the intern supervision timer. No-op if already running or pending. */
   handleStart: () => Promise<void>;
-  /** Stop the timer and persist a log entry. No-op if not running. */
+  /** Stop the timer and persist a log entry. No-op if not running or pending. */
   handleStop: () => Promise<void>;
 }
 
@@ -34,50 +38,66 @@ export function useInternTimer(
 ): UseInternTimerResult {
   const dateKey = toDateKey(today);
 
-  // Firestore-persisted state
+  // ── Firestore-persisted state ──────────────────────────────────────────
   const [storedSeconds, setStoredSeconds] = useState(0);
   const [timerStartedAt, setTimerStartedAt] = useState<Date | null>(null);
   const [stopLog, setStopLog] = useState<InternStopLogEntry[]>([]);
 
-  // Client-side live tick
+  // ── Local UI state ────────────────────────────────────────────────────
   const [liveSeconds, setLiveSeconds] = useState(0);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const sessionStartRef = useRef<Date | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // ── Track whether the dateKey changes (midnight rollover) ──────────────
   const prevDateKeyRef = useRef<string>(dateKey);
+
+  /**
+   * Ref-based pending flag used inside the Firestore snapshot callback.
+   * Prevents the snapshot from overriding our optimistic state while a
+   * write is in-flight (avoids flicker).
+   */
+  const isPendingRef = useRef(false);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isPendingRef.current = isPending;
+  }, [isPending]);
 
   // ── Subscribe to Firestore doc ────────────────────────────────────────
   useEffect(() => {
     if (!uid) return;
 
     const unsub = subscribeInternSession(uid, dateKey, (session) => {
+      // Always sync the persisted total and log — these drive the summary
       setStoredSeconds(session.totalSeconds);
-      setTimerStartedAt(session.timerStartedAt);
       setStopLog(session.stopLog);
 
-      // If Firestore says timer is running, sync the client-side clock
-      if (session.timerStartedAt) {
-        sessionStartRef.current = session.timerStartedAt;
-        setLiveSeconds(secondsSince(session.timerStartedAt));
+      // Only sync the running / clock state from Firestore when we are NOT
+      // in the middle of a local optimistic write, to prevent Firestore's
+      // intermediate cache snapshot from overriding the UI we just updated.
+      if (!isPendingRef.current) {
+        setTimerStartedAt(session.timerStartedAt);
+        if (session.timerStartedAt) {
+          sessionStartRef.current = session.timerStartedAt;
+          setLiveSeconds(secondsSince(session.timerStartedAt));
+        }
       }
     });
 
     return unsub;
   }, [uid, dateKey]);
 
-  // ── Midnight auto-reset: clear live state when date rolls over ────────
+  // ── Midnight auto-reset ───────────────────────────────────────────────
   useEffect(() => {
     if (prevDateKeyRef.current !== dateKey) {
       prevDateKeyRef.current = dateKey;
-      // Stop any ticking interval and reset live counters
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
       setLiveSeconds(0);
       sessionStartRef.current = null;
-      // storedSeconds / timerStartedAt will be overwritten by the new day's subscription
     }
   }, [dateKey]);
 
@@ -90,7 +110,8 @@ export function useInternTimer(
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      setLiveSeconds(0);
+      // Do NOT reset liveSeconds here — that would wipe the running display
+      // before we've captured elapsed in handleStop.
       return;
     }
 
@@ -110,26 +131,61 @@ export function useInternTimer(
 
   // ── Start handler ─────────────────────────────────────────────────────
   const handleStart = useCallback(async () => {
-    if (!uid || isRunning) return;
+    if (!uid || isRunning || isPending) return;
+    setError(null);
+    setIsPending(true);
+    isPendingRef.current = true;
+
+    // Optimistic: update UI immediately
     const now = new Date();
     sessionStartRef.current = now;
     setLiveSeconds(0);
-    setTimerStartedAt(now); // optimistic
-    await startInternTimer(uid, dateKey);
-  }, [uid, isRunning, dateKey]);
+    setTimerStartedAt(now);
+
+    try {
+      await startInternTimer(uid, dateKey);
+    } catch (err) {
+      // Rollback: reset to stopped state
+      setTimerStartedAt(null);
+      sessionStartRef.current = null;
+      setLiveSeconds(0);
+      setError(err instanceof Error ? err.message : "Failed to start timer.");
+    } finally {
+      setIsPending(false);
+      isPendingRef.current = false;
+    }
+  }, [uid, isRunning, isPending, dateKey]);
 
   // ── Stop handler ──────────────────────────────────────────────────────
   const handleStop = useCallback(async () => {
-    if (!uid || !isRunning) return;
+    if (!uid || !isRunning || isPending) return;
+    setError(null);
+    setIsPending(true);
+    isPendingRef.current = true;
+
+    // Capture elapsed before resetting any state
     const elapsed = liveSeconds;
-    // Optimistic reset
+    const newTotal = storedSeconds + elapsed;
+
+    // Optimistic: stop the clock and immediately show the accumulated total
     setTimerStartedAt(null);
     setLiveSeconds(0);
+    setStoredSeconds(newTotal); // <— KEY FIX: show total right away
     sessionStartRef.current = null;
-    await stopInternTimer(uid, dateKey, elapsed);
-  }, [uid, isRunning, liveSeconds, dateKey]);
+
+    try {
+      await stopInternTimer(uid, dateKey, elapsed);
+      // Firestore snapshot will confirm + potentially correct newTotal
+    } catch (err) {
+      // On failure, Firestore snapshot will restore state via the subscription
+      setError(err instanceof Error ? err.message : "Failed to stop timer.");
+    } finally {
+      setIsPending(false);
+      isPendingRef.current = false;
+    }
+  }, [uid, isRunning, isPending, liveSeconds, storedSeconds, dateKey]);
 
   const todayTotalSeconds = storedSeconds + (isRunning ? liveSeconds : 0);
 
-  return { isRunning, todayTotalSeconds, stopLog, handleStart, handleStop };
+  return { isRunning, todayTotalSeconds, stopLog, isPending, error, handleStart, handleStop };
 }
