@@ -1628,3 +1628,179 @@
     transition: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Intern Supervision Timer Section
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Container — sits below the task-add form inside taskFormPanel */
+.internTimerSection {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Header: title + subtitle */
+.internTimerHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.internTimerTitle {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.internTimerSubtitle {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* Actions row: badge/clock + button side by side */
+.internTimerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Live clock badge (shown when running) */
+.internTimerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 8px;
+  background: rgba(234, 179, 8, 0.08);
+  color: #92400e;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Pulsing dot */
+.internTimerDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d97706;
+  animation: internTimerPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes internTimerPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.45; transform: scale(0.75); }
+}
+
+/* Monospace clock digits */
+.internTimerClock {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
+/* Start button — cream/outline style */
+.internStartButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--surface-card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.internStartButton:hover:not(:disabled) {
+  border-color: var(--ink-ghost);
+  background: var(--surface-strong);
+}
+
+/* Stop button — warm amber tint to signal "active/running" */
+.internStopButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d97706;
+  border-radius: 10px;
+  background: #d97706;
+  color: #fff;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.internStopButton:hover:not(:disabled) {
+  background: #b45309;
+  border-color: #b45309;
+}
+
+/* Today's total summary */
+.internTimerSummary {
+  color: var(--ink-faint);
+  font-size: 0.76rem;
+}
+
+.internTimerSummary strong {
+  color: var(--ink-soft);
+}
+
+/* Stop-log feed */
+.internStopLog {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.internStopLogTitle {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.internStopLogEntry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-faint);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.internStopLogEntry time {
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.internStopLogDuration {
+  color: var(--ink-soft);
+  font-weight: 600;
+}

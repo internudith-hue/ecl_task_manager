@@ -3,6 +3,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { Clock3, Plus } from "lucide-react";
 
+import { InternTimerSection } from "./InternTimerSection";
 import styles from "./CalmDashboard.module.css";
 
 interface TaskInput {
@@ -15,6 +16,10 @@ interface TaskFormProps {
   onSubmit: (input: TaskInput) => void;
   /** External error from the background write operation (e.g. Firestore failure). */
   addError?: string | null;
+  /** Authenticated user ID — required to power the intern supervision timer. */
+  uid: string;
+  /** Current date — used to key today's intern supervision session. */
+  today: Date;
 }
 
 const MAX_TASK_HOURS = 10_000;
@@ -22,6 +27,8 @@ const MAX_TASK_HOURS = 10_000;
 export function TaskForm({
   onSubmit,
   addError,
+  uid,
+  today,
 }: TaskFormProps) {
   const nameId = useId();
   const hoursId = useId();
@@ -152,6 +159,8 @@ export function TaskForm({
           </p>
         )}
       </form>
+
+      <InternTimerSection uid={uid} today={today} />
     </section>
   );
 }

@@ -203,6 +203,8 @@ function DashboardContent() {
               <div className={styles.controlsGrid} aria-label="Queue controls">
                 <TaskForm
                   addError={addTaskError}
+                  uid={user.uid}
+                  today={today}
                   onSubmit={(input) => {
                     setAddTaskError(null);
                     addOptimisticTask(

@@ -9,11 +9,13 @@ service cloud.firestore {
     function validUserDocument() {
       return request.resource.data.keys().hasOnly([
           'hoursPerDay',
-          'nextTaskOrder'
+          'nextTaskOrder',
+          'internSupervisionHours'
         ])
         && request.resource.data.keys().hasAny([
           'hoursPerDay',
-          'nextTaskOrder'
+          'nextTaskOrder',
+          'internSupervisionHours'
         ])
         && request.resource.data.get('hoursPerDay', 8) is number
         && request.resource.data.get('hoursPerDay', 8) >= 0.25
@@ -62,6 +64,12 @@ service cloud.firestore {
           && validTask()
           && request.resource.data.createdAt == resource.data.createdAt;
         allow delete: if isOwner(userId);
+      }
+
+      // Per-day intern supervision session documents
+      // Path: users/{userId}/internSupervision/{YYYY-MM-DD}
+      match /internSupervision/{dateKey} {
+        allow read, write: if isOwner(userId);
       }
     }
   }
