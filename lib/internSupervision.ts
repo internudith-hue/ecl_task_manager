@@ -29,13 +29,6 @@ export interface InternSessionDoc {
   dateKey: string;
   totalSeconds: number;
   timerStartedAt: Date | null;
-  /** Log entries written each time the timer is stopped */
-  stopLog: InternStopLogEntry[];
-}
-
-export interface InternStopLogEntry {
-  stoppedAt: Date;
-  sessionSeconds: number; // seconds added in this particular stop
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -52,21 +45,6 @@ function toDate(value: unknown): Date | null {
     return (value as Timestamp).toDate();
   }
   return null;
-}
-
-function toStopLog(raw: unknown): InternStopLogEntry[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .map((entry: unknown) => {
-      if (typeof entry !== "object" || entry === null) return null;
-      const e = entry as Record<string, unknown>;
-      const stoppedAt = toDate(e.stoppedAt);
-      const sessionSeconds =
-        typeof e.sessionSeconds === "number" ? e.sessionSeconds : 0;
-      if (!stoppedAt) return null;
-      return { stoppedAt, sessionSeconds } satisfies InternStopLogEntry;
-    })
-    .filter((x): x is InternStopLogEntry => x !== null);
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
@@ -87,7 +65,6 @@ export function subscribeInternSession(
         dateKey,
         totalSeconds: 0,
         timerStartedAt: null,
-        stopLog: [],
       });
       return;
     }
@@ -96,7 +73,6 @@ export function subscribeInternSession(
       dateKey,
       totalSeconds: typeof data.totalSeconds === "number" ? data.totalSeconds : 0,
       timerStartedAt: toDate(data.timerStartedAt),
-      stopLog: toStopLog(data.stopLog),
     });
   });
 }
@@ -121,8 +97,7 @@ export async function startInternTimer(
 
 /**
  * Stop the running intern supervision timer.
- * Atomically adds `additionalSeconds` to `totalSeconds`, clears `timerStartedAt`,
- * and appends a stop-log entry with the timestamp and seconds added.
+ * Atomically adds `additionalSeconds` to `totalSeconds` and clears `timerStartedAt`.
  */
 export async function stopInternTimer(
   uid: string,
@@ -131,15 +106,11 @@ export async function stopInternTimer(
 ): Promise<void> {
   const safeExtra = Math.max(0, Math.round(additionalSeconds));
   const ref = sessionDoc(uid, dateKey);
-  // Use a client-side timestamp for the log entry.
-  // Firestore's serverTimestamp() sentinel cannot be nested inside an array element.
-  const stoppedAt = new Date();
 
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     const data = snap.exists() ? snap.data() : {};
     const current = typeof data.totalSeconds === "number" ? data.totalSeconds : 0;
-    const existingLog: unknown[] = Array.isArray(data.stopLog) ? data.stopLog : [];
 
     tx.set(
       ref,
@@ -147,13 +118,6 @@ export async function stopInternTimer(
         dateKey,
         totalSeconds: current + safeExtra,
         timerStartedAt: null,
-        stopLog: [
-          ...existingLog,
-          {
-            stoppedAt,
-            sessionSeconds: safeExtra,
-          },
-        ],
       },
       { merge: true },
     );

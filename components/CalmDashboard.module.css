@@ -1768,39 +1768,3 @@
 .internTimerSummary strong {
   color: var(--ink-soft);
 }
-
-/* Stop-log feed */
-.internStopLog {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.internStopLogTitle {
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-.internStopLogEntry {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--ink-faint);
-  font-size: 0.74rem;
-  line-height: 1.4;
-}
-
-.internStopLogEntry time {
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-}
-
-.internStopLogDuration {
-  color: var(--ink-soft);
-  font-weight: 600;
-}

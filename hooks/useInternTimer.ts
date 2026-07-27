@@ -7,7 +7,6 @@ import {
   stopInternTimer,
   subscribeInternSession,
   toDateKey,
-  type InternStopLogEntry,
 } from "@/lib/internSupervision";
 
 export interface UseInternTimerResult {
@@ -15,8 +14,6 @@ export interface UseInternTimerResult {
   isRunning: boolean;
   /** Live total seconds for today: stored totalSeconds + current session seconds. */
   todayTotalSeconds: number;
-  /** The stop-log entries for today (appended each time the timer is stopped). */
-  stopLog: InternStopLogEntry[];
   /** True while a Firestore write is in-flight — use to disable buttons. */
   isPending: boolean;
   /** Non-null when the last start/stop write failed. */
@@ -41,7 +38,6 @@ export function useInternTimer(
   // ── Firestore-persisted state ──────────────────────────────────────────
   const [storedSeconds, setStoredSeconds] = useState(0);
   const [timerStartedAt, setTimerStartedAt] = useState<Date | null>(null);
-  const [stopLog, setStopLog] = useState<InternStopLogEntry[]>([]);
 
   // ── Local UI state ────────────────────────────────────────────────────
   const [liveSeconds, setLiveSeconds] = useState(0);
@@ -71,7 +67,6 @@ export function useInternTimer(
     const unsub = subscribeInternSession(uid, dateKey, (session) => {
       // Always sync the persisted total and log — these drive the summary
       setStoredSeconds(session.totalSeconds);
-      setStopLog(session.stopLog);
 
       // Only sync the running / clock state from Firestore when we are NOT
       // in the middle of a local optimistic write, to prevent Firestore's
@@ -187,5 +182,5 @@ export function useInternTimer(
 
   const todayTotalSeconds = storedSeconds + (isRunning ? liveSeconds : 0);
 
-  return { isRunning, todayTotalSeconds, stopLog, isPending, error, handleStart, handleStop };
+  return { isRunning, todayTotalSeconds, isPending, error, handleStart, handleStop };
 }

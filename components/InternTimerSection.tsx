@@ -45,11 +45,9 @@ const timeFormatter = new Intl.DateTimeFormat("en", {
 });
 
 export function InternTimerSection({ uid, today }: InternTimerSectionProps) {
-  const dateKey = toDateKey(today);
   const {
     isRunning,
     todayTotalSeconds,
-    stopLog,
     isPending,
     error,
     handleStart,
@@ -120,31 +118,12 @@ export function InternTimerSection({ uid, today }: InternTimerSectionProps) {
         </p>
       )}
 
-      {/* Today's cumulative total */}
       <p className={styles.internTimerSummary}>
         <Timer size={11} aria-hidden="true" style={{ verticalAlign: "middle", marginRight: 4 }} />
         Today:{" "}
         <strong>{formatDuration(todayTotalSeconds)}</strong> total
         {isRunning && " (running)"}
       </p>
-
-      {/* Stop-log — notification entries written each time the timer is stopped */}
-      {stopLog.length > 0 && (
-        <div className={styles.internStopLog} aria-label="Supervision sessions today" aria-live="polite">
-          <p className={styles.internStopLogTitle}>Sessions — {dateKey}</p>
-          {stopLog.map((entry, index) => (
-            <div key={index} className={styles.internStopLogEntry}>
-              <time dateTime={entry.stoppedAt.toISOString()}>
-                {timeFormatter.format(entry.stoppedAt)}
-              </time>
-              <span aria-hidden="true">·</span>
-              <span className={styles.internStopLogDuration}>
-                {formatDuration(entry.sessionSeconds)}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
