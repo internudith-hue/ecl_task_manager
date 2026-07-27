@@ -43,6 +43,12 @@ function addMonths(date: Date, n: number): Date {
   return d;
 }
 
+/** Format hours as a human-friendly string: "5 hrs", "0.5 hrs", "3.5 hrs" */
+function formatHours(h: number): string {
+  if (h === Math.floor(h)) return `${h} hr${h === 1 ? "" : "s"}`;
+  return `${h} hrs`;
+}
+
 /**
  * Build a 6-row × 7-column grid of dates for the month containing `base`.
  * The grid always starts on Sunday to match Google Calendar.
@@ -80,16 +86,54 @@ interface TaskChipProps {
   color: (typeof TASK_COLORS)[number];
   isStart: boolean;
   isEnd: boolean;
+  hoursToday: number;
+  percentToday: number;
 }
 
-function TaskChip({ name, color, isStart, isEnd }: TaskChipProps) {
+function TaskChip({ name, color, isStart, isEnd, hoursToday, percentToday }: TaskChipProps) {
   return (
     <div
       className={`${styles.taskChip} ${isStart ? styles.chipStart : styles.chipContinue} ${isEnd ? styles.chipEnd : ""}`}
       style={{ backgroundColor: color.bg, color: color.text }}
-      title={name}
     >
       {isStart ? <span className={styles.chipLabel}>{name}</span> : null}
+
+      {/* ── Rich hover tooltip ────────────────────────────────────── */}
+      <div className={styles.tooltip} role="tooltip">
+        {/* Task name row */}
+        <div className={styles.tooltipHeader}>
+          <span
+            className={styles.tooltipColorDot}
+            style={{ backgroundColor: color.bg }}
+            aria-hidden="true"
+          />
+          <span className={styles.tooltipName}>{name}</span>
+        </div>
+
+        <div className={styles.tooltipDivider} aria-hidden="true" />
+
+        {/* Hours planned today */}
+        <div className={styles.tooltipRow}>
+          <span className={styles.tooltipIcon} aria-hidden="true">🕐</span>
+          <span className={styles.tooltipStat}>
+            <strong>{formatHours(hoursToday)}</strong> planned today
+          </span>
+        </div>
+
+        {/* Progress bar + percentage */}
+        <div className={styles.tooltipProgressSection}>
+          <div className={styles.tooltipProgressTrack} role="progressbar" aria-valuenow={percentToday} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className={styles.tooltipProgressFill}
+              style={{
+                width: `${percentToday}%`,
+                backgroundColor: color.bg,
+              }}
+            />
+          </div>
+          <span className={styles.tooltipPercent}>{percentToday}% of today</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -100,6 +144,8 @@ interface TaskOnDay {
   colorIndex: number;
   isStart: boolean;
   isEnd: boolean;
+  hoursToday: number;
+  percentToday: number;
 }
 
 interface DayCellProps {
@@ -125,13 +171,15 @@ function DayCell({ date, today, currentMonth, tasksOnDay }: DayCellProps) {
         {date.getDate()}
       </span>
       <div className={styles.chipList}>
-        {tasksOnDay.map(({ task, colorIndex, isStart, isEnd }) => (
+        {tasksOnDay.map(({ task, colorIndex, isStart, isEnd, hoursToday, percentToday }) => (
           <TaskChip
             key={task.id}
             name={task.name}
             color={getTaskColor(colorIndex)}
             isStart={isStart}
             isEnd={isEnd}
+            hoursToday={hoursToday}
+            percentToday={percentToday}
           />
         ))}
       </div>
@@ -145,9 +193,10 @@ interface MonthGridProps {
   today: Date;
   schedule: ScheduledTask[];
   colorMap: Map<string, number>;
+  hoursPerDay: number;
 }
 
-function MonthGrid({ base, today, schedule, colorMap }: MonthGridProps) {
+function MonthGrid({ base, today, schedule, colorMap, hoursPerDay }: MonthGridProps) {
   const currentMonth = base.getMonth();
   const cells = useMemo(() => buildMonthGrid(base), [base]);
 
@@ -169,6 +218,10 @@ function MonthGrid({ base, today, schedule, colorMap }: MonthGridProps) {
       <div className={styles.cellGrid} role="grid" aria-label={MONTH_FORMATTER.format(base)}>
         {cells.map((date) => {
           const dayStart = startOfDay(date);
+          const yy = date.getFullYear();
+          const mm = String(date.getMonth() + 1).padStart(2, "0");
+          const dd = String(date.getDate()).padStart(2, "0");
+          const isoDate = `${yy}-${mm}-${dd}`;
 
           const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon … 6=Sat
           const isWeekday = dayOfWeek !== 0 && dayOfWeek !== 6;
@@ -181,14 +234,24 @@ function MonthGrid({ base, today, schedule, colorMap }: MonthGridProps) {
                   const e = startOfDay(t.endDate);
                   return dayStart >= s && dayStart <= e;
                 })
-                .map((t) => ({
-                  task: t,
-                  colorIndex: colorMap.get(t.id) ?? 0,
-                  // Open the pill on the real start day OR on Monday (after a weekend gap)
-                  isStart: isSameDay(dayStart, t.startDate) || dayOfWeek === 1,
-                  // Close the pill on the real end day OR on Friday (before a weekend gap)
-                  isEnd: isSameDay(dayStart, t.endDate) || dayOfWeek === 5,
-                }));
+                .map((t) => {
+                  const hoursToday = t.dailyHours?.[isoDate] ?? 0;
+                  const percentToday = Math.min(
+                    100,
+                    Math.round((hoursToday / hoursPerDay) * 100),
+                  );
+
+                  return {
+                    task: t,
+                    colorIndex: colorMap.get(t.id) ?? 0,
+                    // Open the pill on the real start day OR on Monday (after a weekend gap)
+                    isStart: isSameDay(dayStart, t.startDate) || dayOfWeek === 1,
+                    // Close the pill on the real end day OR on Friday (before a weekend gap)
+                    isEnd: isSameDay(dayStart, t.endDate) || dayOfWeek === 5,
+                    hoursToday,
+                    percentToday,
+                  };
+                });
 
           return (
             <DayCell
@@ -209,9 +272,10 @@ function MonthGrid({ base, today, schedule, colorMap }: MonthGridProps) {
 interface CalendarViewProps {
   schedule: ScheduledTask[];
   today: Date;
+  hoursPerDay: number;
 }
 
-export function CalendarView({ schedule, today }: CalendarViewProps) {
+export function CalendarView({ schedule, today, hoursPerDay }: CalendarViewProps) {
   /* Assign a stable color index to each task by its position in the schedule */
   const colorMap = useMemo<Map<string, number>>(() => {
     const map = new Map<string, number>();
@@ -252,18 +316,21 @@ export function CalendarView({ schedule, today }: CalendarViewProps) {
           today={today}
           schedule={schedule}
           colorMap={colorMap}
+          hoursPerDay={hoursPerDay}
         />
         <MonthGrid
           base={currMonth}
           today={today}
           schedule={schedule}
           colorMap={colorMap}
+          hoursPerDay={hoursPerDay}
         />
         <MonthGrid
           base={nextMonth}
           today={today}
           schedule={schedule}
           colorMap={colorMap}
+          hoursPerDay={hoursPerDay}
         />
       </div>
 

@@ -21,6 +21,8 @@ export interface ScheduledTask extends Task {
   durationDays: number;
   startDate: Date;
   endDate: Date;
+  /** ISO date string (YYYY-MM-DD) → hours allocated on that specific working day */
+  dailyHours: Record<string, number>;
 }
 
 export interface UserSettings {

@@ -257,5 +257,45 @@ describe("buildSchedule", () => {
       buildSchedule([task("invalid", 1, 0)], 8, localDate(2026, 7, 24)),
     ).toThrow(RangeError);
   });
-});
 
+  describe("dailyHours map", () => {
+    it("single-day task: records correct hours on its one day", () => {
+      // Task A = 3 hrs, starts Jul 27 (Monday)
+      const result = buildSchedule([task("a", 1, 3)], 8, localDate(2026, 7, 27));
+      expect(result[0].dailyHours).toEqual({ "2026-07-27": 3 });
+    });
+
+    it("bin-packed day: two tasks sharing the same day get correct slices", () => {
+      // Task A = 3 hrs, Task B = 6 hrs, pace = 8 hrs/day, start Jul 27
+      // Day 1 (Jul 27): A takes 3 hrs, B takes 5 hrs (8 - 3 = 5 remaining)
+      // Day 2 (Jul 28): B takes remaining 1 hr
+      const result = buildSchedule(
+        [task("a", 1, 3), task("b", 2, 6)],
+        8,
+        localDate(2026, 7, 27),
+      );
+
+      expect(result[0].dailyHours).toEqual({ "2026-07-27": 3 });
+      expect(result[1].dailyHours).toEqual({
+        "2026-07-27": 5,
+        "2026-07-28": 1,
+      });
+    });
+
+    it("multi-day overflow task: full days get hoursPerDay, last day gets remainder", () => {
+      // Task = 9 hrs, pace = 8 hrs/day, start Jul 24 (Friday)
+      // Day 1 (Jul 24): 8 hrs, Day 2 (Jul 27 Mon): 1 hr
+      const result = buildSchedule([task("big", 1, 9)], 8, localDate(2026, 7, 24));
+
+      expect(result[0].dailyHours).toEqual({
+        "2026-07-24": 8,
+        "2026-07-27": 1,
+      });
+    });
+
+    it("full day exactly: task consuming exactly hoursPerDay shows one entry", () => {
+      const result = buildSchedule([task("exact", 1, 8)], 8, localDate(2026, 7, 27));
+      expect(result[0].dailyHours).toEqual({ "2026-07-27": 8 });
+    });
+  });
+});

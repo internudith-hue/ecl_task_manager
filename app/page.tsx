@@ -246,7 +246,7 @@ function DashboardContent() {
             </div>
 
             {/* CALENDAR — always visible below the task list */}
-            <CalendarView schedule={schedule} today={today} />
+            <CalendarView schedule={schedule} today={today} hoursPerDay={hoursPerDay} />
           </>
         )}
       </main>

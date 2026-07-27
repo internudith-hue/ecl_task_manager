@@ -127,16 +127,26 @@ export function buildSchedule(
     const scheduledStart = new Date(cursor.getTime());
     let hoursLeft = task.hours;
 
+    // dailyHours captures how many hours this task occupies on each working day
+    const dailyHours: Record<string, number> = {};
+
     // Fill current day first, then overflow into subsequent working days
     while (hoursLeft > 0) {
       const remainingToday = hoursPerDay - hoursUsedToday;
+      // Build ISO date key using LOCAL date parts to avoid UTC offset issues
+      const y = cursor.getFullYear();
+      const m = String(cursor.getMonth() + 1).padStart(2, "0");
+      const d = String(cursor.getDate()).padStart(2, "0");
+      const isoDate = `${y}-${m}-${d}`;
 
       if (hoursLeft <= remainingToday) {
         // Task fits (entirely or partially) within today
+        dailyHours[isoDate] = (dailyHours[isoDate] ?? 0) + hoursLeft;
         hoursUsedToday += hoursLeft;
         hoursLeft = 0;
       } else {
         // Today is fully consumed; spill into next working day
+        dailyHours[isoDate] = (dailyHours[isoDate] ?? 0) + remainingToday;
         hoursLeft -= remainingToday;
         cursor = nextWorkingDay(cursor);
         hoursUsedToday = 0;
@@ -166,6 +176,7 @@ export function buildSchedule(
       durationDays,
       startDate: scheduledStart,
       endDate: scheduledEnd,
+      dailyHours,
     };
   });
 }
